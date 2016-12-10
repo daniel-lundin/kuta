@@ -1,0 +1,15 @@
+{
+  "name": "kuta",
+  "version": "1.0.0",
+  "description": "blazing fast test runner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^7.1.1",
+    "minimist": "^1.2.0"
+  }
+}
