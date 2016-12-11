@@ -1,6 +1,6 @@
 {
   "name": "kuta",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "bin": {
-    "kuta": "./index.js"
+    "kuta": "bin/cli.js"
   },
   "dependencies": {
     "colors": "^1.1.2",
@@ -19,7 +19,7 @@
     "eslint": "^3.12.0"
   },
   "files": [
-    "./lib/",
-    "./index.js"
+    "lib/",
+    "bin/"
   ]
 }
