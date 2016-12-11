@@ -1,11 +1,16 @@
 const minimist = require('minimist');
+const colors = require('colors');
 
 const runner = require('./lib/runner');
 
 const ERR_USAGE = 0;
 
+function log(...args) {
+  console.log(...args); // eslint-disable-line
+}
+
 function printUsage() {
-  console.log('Usage: kuta testfiles [options]');
+  log('Usage: kuta testfiles [options]');
   process.exit(ERR_USAGE);
 }
 
@@ -17,7 +22,11 @@ if (args._.length < 1) {
 
 const files = args._;
 runner.run(files)
-  .then(results => {
-    console.log('Test suite complete');
-    console.log('Result:', results);
+  .then((results) => {
+    log('');
+    log(colors.bold(`Passes: ${colors.green(results.successes)}`));
+    log(colors.bold(`Failures: ${colors.red(results.errors)}`));
+  })
+  .catch((err) => {
+    log('Something went wrong', err);
   });
