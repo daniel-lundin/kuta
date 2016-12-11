@@ -1,6 +1,6 @@
 {
   "name": "kuta",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "eslint": "^3.12.0"
   },
   "files": [
-    "lib/",
-    "index.js"
+    "./lib/",
+    "./index.js"
   ]
 }
