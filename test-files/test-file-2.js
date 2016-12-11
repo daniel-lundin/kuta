@@ -7,4 +7,10 @@ test('a simple test 2', () => {
 
 test('another simple test 2', () => {
   assert(false, 'Something went wrong in test-file2.js');
+  // return new Promise((resolve) => {
+  //   setTimeout(() => {
+  //     assert(false, 'Something went wrong in test-file2.js');
+  //     resolve();
+  //   }, 100);
+  // });
 });
