@@ -10,7 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "colors": "^1.1.2",
-    "glob": "^7.1.1",
     "minimist": "^1.2.0"
   },
   "devDependencies": {
