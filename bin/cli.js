@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
+const path = require('path');
 const minimist = require('minimist');
 const colors = require('colors');
 
-const runner = require('../lib/runner');
+const runner = require(path.join(__dirname, '../lib/runner'));
 
 const ERR_USAGE = 0;
 
