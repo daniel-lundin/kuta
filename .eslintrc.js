@@ -5,7 +5,8 @@ module.exports = {
     "es6": true
   },
   "globals": {
-    "process": true
+    "process": true,
+    "__dirname": true
   },
   "extends": "eslint:recommended",
   "rules": {

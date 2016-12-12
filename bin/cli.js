@@ -13,7 +13,14 @@ function log(...args) {
 }
 
 function printUsage() {
-  log('Usage: kuta testfiles [options]');
+  log('');
+  log('  Usage: kuta [options] testfiles');
+  log('');
+  log(' Options: ');
+  log('');
+  log('  -r, --require\t\tfiles to require before running tests');
+  log('  -p, --processes\tNumber of processes in the process pool');
+  log('');
   process.exit(ERR_USAGE);
 }
 
@@ -23,8 +30,11 @@ if (args._.length < 1) {
   printUsage();
 }
 
+const requires = [].concat(args.require || []).concat([].concat(args.r || []));
+const processPool = parseInt(args.processes || args.p || 4, 10);
+
 const files = args._;
-runner.run(files)
+runner.run(files, requires, processPool)
   .then((results) => {
     log('');
     log(colors.bold(`Passes: ${colors.green(results.successes)}`));
