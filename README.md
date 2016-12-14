@@ -18,7 +18,7 @@ Processes are recycled which means that test clean up has to be done for each te
 
 ## Writing tests
 
-```
+```js
 import { test } from 'kuta';
 
 test.before(() => {
@@ -33,7 +33,7 @@ test.beforeEach(() => {
   // Will run before each test
 });
 
-test.after(() => {
+test.afterEach(() => {
   // Will run after each test
 });
 
