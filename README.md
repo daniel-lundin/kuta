@@ -72,3 +72,28 @@ Example:
 If you transpile with babel, use the babel-register hook:
 
 `kuta tests/**/*.js --require babel-register`
+
+# Extras
+
+BDD syntax add on for writing test in given-when-then style:
+
+```js
+
+import feature from 'kuta/lib/bdd';
+
+feature('a feature', (scenario) => {
+  scenario('a scenario', ({ given, when, then }) => {
+    given('something given', () => {
+      // Some setup
+    });
+
+    when('something happens', () => {
+     // Some acting
+    });
+
+    then('something is expected', () => {
+     // Some expecting
+    });
+  });
+});
+```
