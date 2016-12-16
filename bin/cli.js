@@ -3,10 +3,12 @@
 const path = require('path');
 const minimist = require('minimist');
 const colors = require('colors');
+const glob = require('glob');
 
 const runner = require(path.join(__dirname, '../lib/runner'));
 
-const ERR_USAGE = 0;
+const EXIT_CODE_USAGE = 1;
+const EXIT_CODE_FAILURES = 2;
 
 function log(...args) {
   console.log(...args); // eslint-disable-line
@@ -24,6 +26,12 @@ function printUsage() {
   process.exit(ERR_USAGE);
 }
 
+function promiseGlob(globPattern) {
+  return new Promise((resolve) => {
+    glob(globPattern, (err, files) => resolve(files));
+  });
+}
+
 
 const args = minimist(process.argv.slice(2));
 if (args._.length < 1) {
@@ -34,12 +42,24 @@ const requires = [].concat(args.require || []).concat([].concat(args.r || []));
 const processPool = parseInt(args.processes || args.p || 4, 10);
 
 const files = args._;
-runner.run(files, requires, processPool)
+const filePromises = files
+  .map(promiseGlob)
+  .reduce((acc, curr) => acc.concat(curr), []);
+
+Promise.all(filePromises)
+  .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
+  .then((files) => runner.run(files, requires, processPool))
   .then((results) => {
     log('');
     log(colors.bold(`Passes: ${colors.green(results.successes)}`));
     log(colors.bold(`Failures: ${colors.red(results.errors)}`));
+
+    if (results.errors > 0) {
+      process.exit(EXIT_CODE_FAILURES);
+    }
   })
   .catch((err) => {
     log('Something went wrong', err);
   });
+
+

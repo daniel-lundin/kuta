@@ -4,19 +4,20 @@
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "eslint lib && ./bin/cli.js tests/**/*.js"
   },
   "author": "",
   "license": "MIT",
   "bin": {
     "kuta": "bin/cli.js"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/daniel-lundin/kuta.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daniel-lundin/kuta.git"
   },
   "dependencies": {
     "colors": "^1.1.2",
+    "glob": "^7.1.1",
     "minimist": "^1.2.0"
   },
   "devDependencies": {
