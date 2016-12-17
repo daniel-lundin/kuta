@@ -4,7 +4,7 @@ const assert = require('assert');
 
 function promisedExec(command) {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    exec(command, (error, stdout) => {
       if (error) {
         return reject(error);
       }
@@ -14,7 +14,7 @@ function promisedExec(command) {
 }
 
 test('return exit code 0 for passing tests', () => {
-  return promisedExec('./bin/cli.js test-files/passing-tests.js')
+  return promisedExec('./bin/cli.js test-files/passing-tests.js');
 });
 
 test('return non-zero exit code for failing tests', () => {

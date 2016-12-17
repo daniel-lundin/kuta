@@ -23,7 +23,7 @@ function printUsage() {
   log('  -r, --require\t\tfiles to require before running tests');
   log('  -p, --processes\tNumber of processes in the process pool');
   log('');
-  process.exit(ERR_USAGE);
+  process.exit(EXIT_CODE_USAGE);
 }
 
 function promiseGlob(globPattern) {
