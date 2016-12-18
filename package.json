@@ -4,7 +4,7 @@
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "scripts": {
-    "test": "./bin/cli.js tests/**/*.js",
+    "test": "./bin/cli.js tests/*-tests.js",
     "lint": "eslint lib"
   },
   "author": "",
