@@ -59,6 +59,7 @@ Promise.all(filePromises)
     }
   })
   .catch((err) => {
+    process.exit(EXIT_CODE_FAILURES);
     log('Something went wrong', err);
   });
 
