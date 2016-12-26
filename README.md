@@ -61,8 +61,8 @@ Tests are run with the kuta command:
   Usage: kuta [options] testfiles');
 
   Options:
-   -r, --require    files to require before running tests');
-   -p, --processes  Number of processes in the process pool');
+   -r, --require    files to require before running tests
+   -p, --processes  Number of processes in the process pool
 ```
 
 
@@ -71,6 +71,7 @@ Example:
 `kuta tests/**/*.js`
 
 ## Babel
+
 If you transpile with babel, use the babel-register hook:
 
 `kuta tests/**/*.js --require babel-register`

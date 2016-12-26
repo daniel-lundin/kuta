@@ -7,7 +7,16 @@ feature('a feature', (scenario) => {
     console.log('feature before');
   });
 
-  scenario('a scenario', ({ given, when, then }) => {
+  scenario('first scenario', ({ before, after, given, when, then }) => {
+
+    before(() => {
+      console.log('before first one');
+    });
+
+    after(() => {
+      console.log('after first one');
+    });
+
     given('a given', () => {
       assert(true);
     });
@@ -18,6 +27,21 @@ feature('a feature', (scenario) => {
 
     then('something is expected', () => {
       assert(true);
+    });
+  });
+
+  scenario('second scenario', ({ before, after, then }) => {
+
+    before(() => {
+      console.log('before second one');
+    });
+
+    after(() => {
+      console.log('after second one');
+    });
+
+    then('test in second scenario', () => {
+      console.log('second something');
     });
   });
 });

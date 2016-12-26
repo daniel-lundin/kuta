@@ -27,7 +27,11 @@ kuta.test.group('group test', (it) => {
     t.before(secondBeforeSpy);
 
     t('after from previous group should have been called before', () => {
-      sinon.assert.calledOnce(firstAfterSpy);
+      sinon.assert.callOrder(
+        firstBeforeSpy,
+        firstAfterSpy,
+        secondBeforeSpy
+      );
     });
 
     t.after(secondAfterSpy);
