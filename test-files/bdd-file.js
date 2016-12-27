@@ -1,47 +1,35 @@
 const feature = require('../lib/bdd.js');
 const assert = require('assert');
+const sinon = require('sinon');
 
+
+const testObject = {
+  method() {}
+};
 
 feature('a feature', (scenario) => {
-  scenario.before(() => {
-    console.log('feature before');
-  });
-
   scenario('first scenario', ({ before, after, given, when, then }) => {
 
+    let result = 42;
     before(() => {
-      console.log('before first one');
+      sinon.stub(testObject, 'method');
     });
 
     after(() => {
-      console.log('after first one');
+      testObject.method.restore();
     });
 
-    given('a given', () => {
-      assert(true);
+    given('testMethod that returns 42', () => {
+      testObject.method.returns(42);
     });
 
-    when('something happens', () => {
-      assert(true);
+    when('testMethod is called', () => {
+      result = testObject.method();
     });
 
-    then('something is expected', () => {
-      assert(true);
-    });
-  });
-
-  scenario('second scenario', ({ before, after, then }) => {
-
-    before(() => {
-      console.log('before second one');
-    });
-
-    after(() => {
-      console.log('after second one');
-    });
-
-    then('test in second scenario', () => {
-      console.log('second something');
+    then('testMethod should have been calledOnce', () => {
+      sinon.assert.calledOnce(testObject.method);
+      assert.equal(42, result);
     });
   });
 });
