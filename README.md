@@ -1,5 +1,6 @@
 # kuta
 [![Build Status](https://travis-ci.org/daniel-lundin/kuta.svg?branch=master)](https://travis-ci.org/daniel-lundin/kuta)
+[![Code Climate](https://codeclimate.com/github/daniel-lundin/kuta/badges/gpa.svg)](https://codeclimate.com/github/daniel-lundin/kuta)
 
 Parallel test runner for node (very much WIP)
 
