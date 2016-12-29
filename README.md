@@ -2,15 +2,19 @@
 [![Build Status](https://travis-ci.org/daniel-lundin/kuta.svg?branch=master)](https://travis-ci.org/daniel-lundin/kuta)
 [![Code Climate](https://codeclimate.com/github/daniel-lundin/kuta/badges/gpa.svg)](https://codeclimate.com/github/daniel-lundin/kuta)
 
-Parallel test runner for node (very much WIP)
+Experimental parallel test runner for node (very much WIP)
 
 `npm install kuta`
 
-# Design philosophy
+# Design goals
 
-- Run each test file in it's own process, but recycle processes through a process pool.
+- Fast execution time by running test files in parallel
 - Agnostic towards assertion libraries, as long as exceptions are thrown.
 - Keep options configuration at bare minimum.
+
+# Implementation details
+
+- Run each test file in it's own process, but recycle processes through a process pool.
 
 # Trade-offs
 
@@ -79,11 +83,11 @@ If you transpile with babel, use the babel-register hook:
 
 # Extras
 
-BDD syntax add on for writing test in given-when-then style:
+BDD syntax add-on for writing test in given-when-then style:
 
 ```js
 
-import feature from 'kuta/lib/bdd';
+import { feature } from 'kuta/lib/bdd';
 
 feature('a feature', (scenario) => {
   scenario('a scenario', ({ given, when, then }) => {
@@ -97,6 +101,30 @@ feature('a feature', (scenario) => {
 
     then('something is expected', () => {
      // Some expecting
+    });
+  });
+});
+```
+
+Also included is a Jasmine-like DSL:
+
+
+```js
+
+import { describe } from 'kuta/lib/bdd';
+
+describe('outer describe', (it) => {
+  it.before(() => {
+    // Will run before all inner describes
+  });
+
+  it.after(() => {
+    // Will run after all inner describes
+  });
+
+  it.describe('inner describe', (it) => {
+    it('some test', () => {
+      // test setup
     });
   });
 });

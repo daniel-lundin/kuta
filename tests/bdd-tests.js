@@ -15,3 +15,15 @@ test('should run bdd-style tests', () => {
     });
 });
 
+test('should run jasmine-style tests', () => {
+  const requires = [];
+  const processCount = 2;
+  const files = [
+    'test-files/jasmine-dsl'
+  ];
+  return runner.run(files, requires, processCount)
+    .then((results) => {
+      assert.equal(results.successes, 3, 'should be 6 passing tests');
+    });
+});
+
