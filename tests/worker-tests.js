@@ -13,18 +13,36 @@ test.after(() => {
   childProcess.fork.restore();
 });
 
+test.afterEach(() => {
+  childProcess.fork.reset();
+});
+
 test('should spawn processes for process pool', () => {
   const requires = [];
   const processCount = 2;
   const files = [
     'test-files/passing-tests.js',
-    'test-files/passing-tests.js',
-    'test-files/passing-tests.js'
+    'test-files/more-passing-tests.js'
   ];
   const logger = () => {};
   return runner.run(files, requires, processCount, logger)
     .then((results) => {
-      assert.equal(results.successes, 6, 'should be 6 passing tests');
+      assert.equal(results.successes, 4, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 2, 'Should spawn two processes');
+    });
+});
+
+test('should resuse process if test files greater than processes', () => {
+  const requires = [];
+  const processCount = 1;
+  const files = [
+    'test-files/passing-tests.js',
+    'test-files/more-passing-tests.js'
+  ];
+  const logger = () => {};
+  return runner.run(files, requires, processCount, logger)
+    .then((results) => {
+      assert.equal(results.successes, 4, 'should be 6 passing tests');
+      assert.equal(childProcess.fork.callCount, 1, 'Should spawn one processes');
     });
 });

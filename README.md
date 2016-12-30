@@ -8,7 +8,7 @@ Experimental parallel test runner for node (very much WIP)
 
 # Design goals
 
-- Fast execution time by running test files in parallel
+- Fast execution times by running test files in parallel
 - Agnostic towards assertion libraries, as long as exceptions are thrown.
 - Keep options configuration at bare minimum.
 
