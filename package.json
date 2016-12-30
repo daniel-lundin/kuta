@@ -4,8 +4,13 @@
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "scripts": {
-    "test": "./bin/cli.js tests/*-tests.js",
+    "test": "./bin/cli.js",
     "lint": "eslint lib"
+  },
+  "kuta": {
+    "requires": ["assert"],
+    "files": ["tests/*.js"],
+    "processes": 4
   },
   "author": "",
   "license": "MIT",
