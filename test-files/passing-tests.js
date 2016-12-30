@@ -4,7 +4,7 @@ const assert = require('assert');
 test('a simple test 1', () => {
   return new Promise((resolve) => {
     assert(true);
-    setTimeout(resolve, 200);
+    setTimeout(resolve, 1);
   });
 });
 

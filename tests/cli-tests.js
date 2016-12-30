@@ -33,3 +33,14 @@ test('return non-zero exit code for failing tests', () => {
       assert(true);
     });
 });
+
+
+test('exceptions in befores/afters mark tests in group failed', () => {
+  return promisedExec('./bin/cli.js', ['test-files/failing-group.js'])
+    .catch((stdout) => {
+      const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
+      const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
+      assert.equal(failedCount, 2, 'Should be two failing tests');
+      assert.equal(passedCount, 1, 'Should be one passing tests');
+    })
+});

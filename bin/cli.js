@@ -51,8 +51,8 @@ Promise.all(filePromises)
   .then((files) => runner.run(files, requires, processPool))
   .then((results) => {
     log('');
-    log(colors.bold(`Passes: ${colors.green(results.successes)}`));
-    log(colors.bold(`Failures: ${colors.red(results.errors)}`));
+    log(colors.bold(`Passed: ${colors.green(results.successes)}`));
+    log(colors.bold(`Failed: ${colors.red(results.errors)}`));
 
     if (results.errors > 0) {
       process.exit(EXIT_CODE_FAILURES);

@@ -4,6 +4,13 @@ const sinon = require('sinon');
 const kuta = require('../lib/kuta');
 const common = require('../lib/common');
 
+const promiseTimeout = (callback, timeout = 1) => {
+  return new Promise((resolve) => setTimeout(() => {
+    callback();
+    resolve();
+  }, timeout));
+};
+
 kuta.test('returning rejected promises should fail', () => {
   const failTest = () => Promise.reject('eee');
   return kuta.runTest('failing test', failTest)
@@ -36,5 +43,16 @@ kuta.test.group('group test', (it) => {
 
     t.after(secondAfterSpy);
   });
+});
 
+
+kuta.test.group('async before/afters', (t) => {
+  const beforeFunc = sinon.spy();
+  t.before(() => {
+    return promiseTimeout(beforeFunc);
+  });
+
+  t('test should not start before before is completed', () => {
+    sinon.assert.calledOnce(beforeFunc);
+  });
 });
