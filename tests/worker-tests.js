@@ -25,7 +25,8 @@ test('should spawn processes for process pool', () => {
     'test-files/more-passing-tests.js'
   ];
   const logger = () => {};
-  return runner.run(files, requires, processCount, logger)
+  const timeout = 2000;
+  return runner.run(files, requires, processCount, timeout, logger)
     .then((results) => {
       assert.equal(results.successes, 4, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 2, 'Should spawn two processes');
@@ -40,7 +41,8 @@ test('should resuse process if test files greater than processes', () => {
     'test-files/more-passing-tests.js'
   ];
   const logger = () => {};
-  return runner.run(files, requires, processCount, logger)
+  const timeout = 2000;
+  return runner.run(files, requires, processCount, timeout, logger)
     .then((results) => {
       assert.equal(results.successes, 4, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 1, 'Should spawn one processes');

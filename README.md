@@ -68,6 +68,7 @@ Tests are run with the kuta command:
   Options:
    -r, --require    files to require before running tests
    -p, --processes  Number of processes in the process pool
+   -t, --timeout    Number of milliseconds before tests timeout
 ```
 
 
@@ -86,7 +87,8 @@ Example:
   "kuta": {
     "requires": ["testSetup.js", "babel-register"],
     "files": ["tests/*.js"],
-    "processes": 8
+    "processes": 8,
+    "timeout": 1000
   },
 }
 ```

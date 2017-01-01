@@ -11,6 +11,8 @@ const runner = require(path.join(__dirname, '../lib/runner'));
 const EXIT_CODE_USAGE = 1;
 const EXIT_CODE_FAILURES = 2;
 
+const DEFAULT_TIMEOUT = 2000;
+
 function readFromConfig() {
   return new Promise((resolve) => {
     fs.readFile('./package.json', (err, data) => {
@@ -26,7 +28,8 @@ function readFromConfig() {
       return resolve({
         processes: kutaConfig.processes || 4,
         requires: kutaConfig.requires || [],
-        files: kutaConfig.files || []
+        files: kutaConfig.files || [],
+        timeout: kutaConfig.timeout || DEFAULT_TIMEOUT
       });
     });
   });
@@ -43,6 +46,7 @@ function printUsage() {
   log('');
   log('  -r, --require\t\tfiles to require before running tests');
   log('  -p, --processes\tNumber of processes in the process pool');
+  log('  -t, --timeout\t\tNumber of milliseconds before tests timeout');
   log('');
   process.exit(EXIT_CODE_USAGE);
 }
@@ -65,6 +69,7 @@ readFromConfig()
 
     const requires = [].concat(args.require || []).concat([].concat(args.r || []));
     const processes = parseInt(args.processes || args.p || 4, 10);
+    const timeout = args.timeout || args.t;
     const files = args._;
 
     const filePromises = (files.length ? files : config.files)
@@ -75,10 +80,11 @@ readFromConfig()
       .then((files) => ({
         requires: requires.length ? requires : config.requires,
         processes: processes.length ? processes : config.processes,
+        timeout: timeout ? timeout : config.timeout,
         files
       }));
   })
-  .then(({ files, requires, processes }) => runner.run(files, requires, processes))
+  .then(({ files, requires, processes, timeout }) => runner.run(files, requires, processes, timeout))
   .then((results) => {
     log('');
     log(colors.bold(`Passed: ${colors.green(results.successes)}`));
