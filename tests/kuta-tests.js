@@ -1,5 +1,6 @@
 const assert = require('assert');
 const sinon = require('sinon');
+const expect = require('chai').expect;
 
 const kuta = require('../lib/kuta');
 const common = require('../lib/common');
@@ -55,4 +56,20 @@ kuta.test.group('async before/afters', (t) => {
   t('test should not start before before is completed', () => {
     sinon.assert.calledOnce(beforeFunc);
   });
+});
+
+kuta.test('measure time for each test', () => {
+
+  const test = kuta._createTestGroup();
+
+  test('a test', () => {
+    return promiseTimeout(() => {}, 200);
+  });
+
+  return test._runTests()
+    .then((result) => {
+      const testResult = result.results[0];
+      expect(testResult).to.have.property('time');
+      expect(testResult.time).to.be.within(200, 230);
+    });
 });

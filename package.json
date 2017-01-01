@@ -8,8 +8,12 @@
     "lint": "eslint lib"
   },
   "kuta": {
-    "requires": ["assert"],
-    "files": ["tests/*.js"],
+    "requires": [
+      "assert"
+    ],
+    "files": [
+      "tests/*.js"
+    ],
     "processes": 4
   },
   "author": "",
@@ -27,6 +31,7 @@
     "minimist": "^1.2.0"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "eslint": "^3.12.0",
     "nyc": "^10.0.0",
     "sinon": "^1.17.6"
