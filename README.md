@@ -10,7 +10,7 @@ Experimental parallel test runner for node (very much WIP)
 
 - Fast execution times by running test files in parallel
 - Agnostic towards assertion libraries, as long as exceptions are thrown.
-- Keep options configuration at bare minimum.
+- Small API, few features, little configuration
 
 # Implementation details
 
@@ -74,6 +74,22 @@ Tests are run with the kuta command:
 Example:
 
 `kuta tests/**/*.js`
+
+
+Kuta looks for a `kuta`-section in package.json where options can be defined. CLI arguments take precendence over package.json config.
+
+Example:
+
+```json
+{
+  "name": "my-app",
+  "kuta": {
+    "requires": ["testSetup.js", "babel-register"],
+    "files": ["tests/*.js"],
+    "processes": 8
+  },
+}
+```
 
 ## Babel
 

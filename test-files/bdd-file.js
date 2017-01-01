@@ -19,7 +19,7 @@ feature('a feature', (scenario) => {
       testObject.method.restore();
     });
 
-    given('testMethod that returns 42', () => {
+    given('a testMethod that returns 42', () => {
       testObject.method.returns(42);
     });
 
