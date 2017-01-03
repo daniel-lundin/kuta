@@ -5,7 +5,8 @@
   "main": "./lib/kuta.js",
   "scripts": {
     "test": "./bin/cli.js",
-    "lint": "eslint lib"
+    "lint": "eslint lib tests bin",
+    "ci": "npm run lint && npm run test"
   },
   "kuta": {
     "requires": [

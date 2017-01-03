@@ -104,7 +104,7 @@ function startTests() {
 }
 
 function clearScreen() {
-  console.log('\x1Bc');
+  log('\x1Bc');
 }
 
 let testInProgress = false;
@@ -112,7 +112,8 @@ let startNewRun = false;
 
 function runTests() {
   testInProgress = true;
-  startTests().then(() => {
+  // TODO: Move startTest to seperate file for easier stubbing than this
+  module.exports.startTests().then(() => {
     testInProgress = false;
     if (startNewRun) {
       testInProgress = true;
@@ -150,16 +151,24 @@ function startWatch(dirs) {
   });
 }
 
-readFromConfig()
-  .then((config) => {
-    const args = minimist(process.argv.slice(2));
-    const watch = args.w || args.watch || config.watch;
-    if (typeof watch !== 'string') {
-      return log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
-    }
-    if (watch.length > 1) {
-      startWatch(watch.split(','));
-    }
-  });
+if (require.main === module) {
+  readFromConfig()
+    .then((config) => {
+      const args = minimist(process.argv.slice(2));
+      const watch = args.w || args.watch || config.watch;
+      if (typeof watch !== 'string') {
+        return log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
+      }
+      if (watch.length > 1) {
+        startWatch(watch.split(','));
+      }
+    });
 
-runTests();
+  setImmediate(runTests);
+}
+
+module.exports = {
+  runTests,
+  startTests,
+  startWatch
+};

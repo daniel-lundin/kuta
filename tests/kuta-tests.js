@@ -71,7 +71,7 @@ kuta.test('measure time for each test', () => {
     .then((result) => {
       const testResult = result.results[0];
       expect(testResult).to.have.property('time');
-      expect(testResult.time).to.be.within(200, 230);
+      expect(testResult.time).to.be.within(200, 300);
     });
 });
 

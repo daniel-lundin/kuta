@@ -6,7 +6,8 @@ module.exports = {
   },
   'globals': {
     'process': true,
-    '__dirname': true
+    '__dirname': true,
+    'setImmediate': true
   },
   'extends': 'eslint:recommended',
   'rules': {

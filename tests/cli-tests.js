@@ -1,6 +1,11 @@
 const spawn = require('child_process').spawn;
-const test = require('../lib/kuta.js').test;
+const fs = require('fs');
+
+const cli = require('../bin/cli');
+const test = require('../lib/kuta').test;
+const feature = require('../lib/bdd').feature;
 const assert = require('assert');
+const sinon = require('sinon');
 
 function promisedExec(command, args) {
   return new Promise((resolve, reject) => {
@@ -43,4 +48,82 @@ test('exceptions in befores/afters mark tests in group failed', () => {
       assert.equal(failedCount, 2, 'Should be two failing tests');
       assert.equal(passedCount, 1, 'Should be one passing tests');
     });
+});
+
+
+feature('file watch', (scenario) => {
+  scenario('trigger new run on file change', ({ before, after, given, when, then }) => {
+    let fsWatchCallback;
+    let clock;
+
+    before(() => {
+      sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(cli, 'startTests').returns(Promise.reject());
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      fs.watch.restore();
+      cli.startTests.restore();
+      clock.restore();
+    });
+
+    given('a directory watch', () => {
+      cli.startWatch(['some dir']);
+    });
+
+    when('a file change is triggered', () => {
+      fsWatchCallback();
+      clock.tick(1000);
+    });
+
+    then('tests should run again', () => {
+      assert(cli.startTests.calledOnce, 'startTests should have been called');
+    });
+  });
+
+  scenario('wait for rerun until current test run is completed', ({ before, after, given, when, and, then }) => {
+    let fsWatchCallback;
+    let startTestsResolver;
+    let clock;
+
+    before(() => {
+      sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(cli, 'startTests').returns(new Promise((resolve) => {
+        startTestsResolver = resolve;
+      }));
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      fs.watch.restore();
+      cli.startTests.restore();
+      clock.restore();
+    });
+
+    given('a directory watch', () => {
+      cli.startWatch(['some dir']);
+    });
+
+    when('a test run is started', () => {
+      cli.runTests();
+    });
+
+    and('a file change is triggered', () => {
+      fsWatchCallback();
+      clock.tick(1000);
+    });
+
+    then('test should not restart', () => {
+      assert(cli.startTests.calledOnce, 'Only one test run should have been triggered');
+    });
+
+    when('test run completes', () => {
+      startTestsResolver();
+    });
+
+    then('tests should run again', () => {
+      assert(cli.startTests.calledTwice, 'startTests should have been twice');
+    });
+  });
 });
