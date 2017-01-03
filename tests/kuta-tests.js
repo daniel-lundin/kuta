@@ -89,20 +89,20 @@ feature('timeouts', (scenario) => {
       clock.restore();
     });
 
-    given('a test suite with a 1000ms test', () => {
+    given('a test suite with a 1000ms test and timeout set to 500ms', () => {
       testSuite = kuta._createTestGroup();
 
-      testSuite('a test', () => {
+      testSuite.timeout(500)('a test', () => {
         return promiseTimeout(() => {}, 1000);
       });
     });
 
-    when('the testSuite starts running with timeout set to 500ms', () => {
-      suitePromise = testSuite._runTests('a filename', 500);
+    when('the testSuite starts running', () => {
+      suitePromise = testSuite._runTests('a filename');
     });
 
-    when('clock runs 750ms', () => {
-      clock.tick(750);
+    when('clock runs 1000ms', () => {
+      clock.tick(1000);
     });
 
     then('the test in the suite should fail due to timeout', () => {
