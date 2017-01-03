@@ -60,43 +60,86 @@ function promiseGlob(globPattern) {
   });
 }
 
-readFromConfig()
-  .then((config) => {
-    const args = minimist(process.argv.slice(2));
-    if (args._.length === 0 && config.files.length < 1) {
-      printUsage();
-    }
+function startTests() {
+  return readFromConfig()
+    .then((config) => {
+      const args = minimist(process.argv.slice(2));
+      if (args._.length === 0 && config.files.length < 1) {
+        printUsage();
+      }
 
-    const requires = [].concat(args.require || []).concat([].concat(args.r || []));
-    const processes = parseInt(args.processes || args.p || 4, 10);
-    const timeout = args.timeout || args.t;
-    const files = args._;
+      const requires = [].concat(args.require || []).concat([].concat(args.r || []));
+      const processes = parseInt(args.processes || args.p || 4, 10);
+      const timeout = args.timeout || args.t;
+      const files = args._;
 
-    const filePromises = (files.length ? files : config.files)
-      .map(promiseGlob)
-      .reduce((acc, curr) => acc.concat(curr), []);
-    return Promise.all(filePromises)
-      .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
-      .then((files) => ({
-        requires: requires.length ? requires : config.requires,
-        processes: processes.length ? processes : config.processes,
-        timeout: timeout ? timeout : config.timeout,
-        files
-      }));
-  })
-  .then(({ files, requires, processes, timeout }) => runner.run(files, requires, processes, timeout))
-  .then((results) => {
-    log('');
-    log(colors.bold(`Passed: ${colors.green(results.successes)}`));
-    log(colors.bold(`Failed: ${colors.red(results.errors)}`));
+      const filePromises = (files.length ? files : config.files)
+        .map(promiseGlob)
+        .reduce((acc, curr) => acc.concat(curr), []);
+      return Promise.all(filePromises)
+        .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
+        .then((files) => ({
+          requires: requires.length ? requires : config.requires,
+          processes: processes.length ? processes : config.processes,
+          timeout: timeout ? timeout : config.timeout,
+          files
+        }));
+    })
+    .then(({ files, requires, processes, timeout }) => runner.run(files, requires, processes, timeout))
+    .then((results) => {
+      log('');
+      log(colors.bold(`Passed: ${colors.green(results.successes)}`));
+      log(colors.bold(`Failed: ${colors.red(results.errors)}`));
 
-    if (results.errors > 0) {
+      if (results.errors > 0) {
+        process.exit(EXIT_CODE_FAILURES);
+      }
+    })
+    .catch((err) => {
       process.exit(EXIT_CODE_FAILURES);
+      log('Something went wrong', err);
+    });
+}
+
+let testInProgress = false;
+let startNewRun = false;
+
+
+function runTests() {
+  testInProgress = true;
+  startTests().then(() => {
+    testInProgress = false;
+    if (startNewRun) {
+      testInProgress = true;
+      startNewRun = false;
+      runTests();
     }
-  })
-  .catch((err) => {
-    process.exit(EXIT_CODE_FAILURES);
-    log('Something went wrong', err);
   });
+}
 
+function debounce(fn, delay) {
+  let timer = null;
+  return function() {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  };
+}
 
+function triggerNewRun() {
+  if (!testInProgress) {
+    runTests();
+  } else {
+    startNewRun = true;
+  }
+}
+
+const debouncedTriggerRun = debounce(triggerNewRun, 500);
+
+const args = minimist(process.argv.slice(2));
+if (args.watch) {
+  fs.watch('./tests', () => {
+    debouncedTriggerRun();
+  });
+}
+
+runTests();

@@ -42,5 +42,5 @@ test('exceptions in befores/afters mark tests in group failed', () => {
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
       assert.equal(failedCount, 2, 'Should be two failing tests');
       assert.equal(passedCount, 1, 'Should be one passing tests');
-    })
+    });
 });
