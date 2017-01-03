@@ -29,7 +29,8 @@ function readFromConfig() {
         processes: kutaConfig.processes || 4,
         requires: kutaConfig.requires || [],
         files: kutaConfig.files || [],
-        timeout: kutaConfig.timeout || DEFAULT_TIMEOUT
+        timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
+        watch: kutaConfig.watch || ''
       });
     });
   });
@@ -44,9 +45,10 @@ function printUsage() {
   log('');
   log(' Options: ');
   log('');
-  log('  -r, --require\t\tfiles to require before running tests');
-  log('  -p, --processes\tNumber of processes in the process pool');
-  log('  -t, --timeout\t\tNumber of milliseconds before tests timeout');
+  log('  -r, --require\t\t\tfiles to require before running tests');
+  log('  -p, --processes\t\tNumber of processes in the process pool');
+  log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
+  log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
   log('');
   process.exit(EXIT_CODE_USAGE);
 }
@@ -101,9 +103,12 @@ function startTests() {
     });
 }
 
+function clearScreen() {
+  console.log('\x1Bc');
+}
+
 let testInProgress = false;
 let startNewRun = false;
-
 
 function runTests() {
   testInProgress = true;
@@ -112,34 +117,49 @@ function runTests() {
     if (startNewRun) {
       testInProgress = true;
       startNewRun = false;
+      clearScreen();
       runTests();
     }
   });
 }
 
-function debounce(fn, delay) {
-  let timer = null;
-  return function() {
-    clearTimeout(timer);
-    timer = setTimeout(fn, delay);
-  };
-}
-
-function triggerNewRun() {
-  if (!testInProgress) {
-    runTests();
-  } else {
-    startNewRun = true;
+function startWatch(dirs) {
+  function debounce(fn, delay) {
+    let timer = null;
+    return function() {
+      clearTimeout(timer);
+      timer = setTimeout(fn, delay);
+    };
   }
-}
 
-const debouncedTriggerRun = debounce(triggerNewRun, 500);
+  function _triggerNewRun() {
+    if (!testInProgress) {
+      clearScreen();
+      runTests();
+    } else {
+      startNewRun = true;
+    }
+  }
 
-const args = minimist(process.argv.slice(2));
-if (args.watch) {
-  fs.watch('./tests', () => {
-    debouncedTriggerRun();
+  const triggerNewRun = debounce(_triggerNewRun, 500);
+
+  dirs.forEach((dir) => {
+    fs.watch(dir, () => {
+      triggerNewRun();
+    });
   });
 }
+
+readFromConfig()
+  .then((config) => {
+    const args = minimist(process.argv.slice(2));
+    const watch = args.w || args.watch || config.watch;
+    if (typeof watch !== 'string') {
+      return log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
+    }
+    if (watch.length > 1) {
+      startWatch(watch.split(','));
+    }
+  });
 
 runTests();

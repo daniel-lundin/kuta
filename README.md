@@ -66,9 +66,10 @@ Tests are run with the kuta command:
   Usage: kuta [options] testfiles');
 
   Options:
-   -r, --require    files to require before running tests
-   -p, --processes  Number of processes in the process pool
-   -t, --timeout    Number of milliseconds before tests timeout
+   -r, --require            Files to require before running tests
+   -p, --processes          Number of processes in the process pool
+   -t, --timeout            Number of milliseconds before tests timeout
+   -w, --watch [dir1,dir2]  Directories to watch for changes and re-run tests
 ```
 
 
@@ -79,7 +80,7 @@ Example:
 
 Kuta looks for a `kuta`-section in package.json where options can be defined. CLI arguments take precendence over package.json config.
 
-Example:
+Example package.json:
 
 ```json
 {
@@ -88,6 +89,7 @@ Example:
     "requires": ["testSetup.js", "babel-register"],
     "files": ["tests/*.js"],
     "processes": 8,
+    "watch": "lib/,common",
     "timeout": 1000
   },
 }
