@@ -57,7 +57,7 @@ feature('file watch', (scenario) => {
     let clock;
 
     before(() => {
-      sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(cli, 'clearScreen'); sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
       sinon.stub(cli, 'startTests').returns(Promise.reject());
       clock = sinon.useFakeTimers();
     });
@@ -66,6 +66,7 @@ feature('file watch', (scenario) => {
       fs.watch.restore();
       cli.startTests.restore();
       clock.restore();
+      cli.clearScreen.restore();
     });
 
     given('a directory watch', () => {
@@ -92,12 +93,14 @@ feature('file watch', (scenario) => {
       sinon.stub(cli, 'startTests').returns(new Promise((resolve) => {
         startTestsResolver = resolve;
       }));
+      sinon.stub(cli, 'clearScreen');
       clock = sinon.useFakeTimers();
     });
 
     after(() => {
       fs.watch.restore();
       cli.startTests.restore();
+      cli.clearScreen.restore();
       clock.restore();
     });
 

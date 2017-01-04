@@ -118,7 +118,7 @@ function runTests() {
     if (startNewRun) {
       testInProgress = true;
       startNewRun = false;
-      clearScreen();
+      module.exports.clearScreen();
       runTests();
     }
   });
@@ -135,7 +135,7 @@ function startWatch(dirs) {
 
   function _triggerNewRun() {
     if (!testInProgress) {
-      clearScreen();
+      module.exports.clearScreen();
       runTests();
     } else {
       startNewRun = true;
@@ -170,5 +170,6 @@ if (require.main === module) {
 module.exports = {
   runTests,
   startTests,
-  startWatch
+  startWatch,
+  clearScreen
 };
