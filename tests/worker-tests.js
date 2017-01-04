@@ -33,7 +33,7 @@ test('should spawn processes for process pool', () => {
     });
 });
 
-test('should resuse process if test files greater than processes', () => {
+test('should reuse process if test files are greater than processes', () => {
   const requires = [];
   const processCount = 1;
   const files = [

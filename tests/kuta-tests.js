@@ -30,6 +30,8 @@ kuta.test.group('group test', (it) => {
   it.group('first group', (t) => {
     t.before(firstBeforeSpy);
     t.after(firstAfterSpy);
+    t('first group tests', () => {
+    });
   });
 
   it.group('second group', (t) => {
@@ -46,7 +48,6 @@ kuta.test.group('group test', (it) => {
     t.after(secondAfterSpy);
   });
 });
-
 
 kuta.test.group('async before/afters', (t) => {
   const beforeFunc = sinon.spy();
