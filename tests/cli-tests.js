@@ -1,5 +1,7 @@
 const spawn = require('child_process').spawn;
+const exec = require('child_process').exec;
 const fs = require('fs');
+const EventEmitter = require('events');
 
 const cli = require('../bin/cli');
 const test = require('../lib/kuta').test;
@@ -7,7 +9,7 @@ const feature = require('../lib/bdd').feature;
 const assert = require('assert');
 const sinon = require('sinon');
 
-function promisedExec(command, args) {
+function promisedExec(command, args, onData = () => {}) {
   return new Promise((resolve, reject) => {
     const process = spawn(command, args);
     let stdout = '';
@@ -21,6 +23,7 @@ function promisedExec(command, args) {
 
     process.stdout.on('data', (data) => {
       stdout += data;
+      if (onData) onData(data);
     });
   });
 }
@@ -30,12 +33,14 @@ test('return exit code 0 for passing tests', () => {
 });
 
 test('return non-zero exit code for failing tests', () => {
+  let resolved = false;
   return promisedExec('./bin/cli.js', ['test-files/failing-tests.js'])
     .then(() => {
+      resolved = true;
       assert(false, 'should not resolve');
     })
-    .catch(() => {
-      assert(true);
+    .catch((err) => {
+      assert(!resolved, err);
     });
 });
 
@@ -52,12 +57,20 @@ test('exceptions in befores/afters mark tests in group failed', () => {
 
 
 feature('file watch', (scenario) => {
+  scenario.before(() => {
+    sinon.stub(cli, 'clearScreen');
+  });
+
+  scenario.after(() => {
+    cli.clearScreen.restore();
+  });
+
   scenario('trigger new run on file change', ({ before, after, given, when, then }) => {
     let fsWatchCallback;
     let clock;
 
     before(() => {
-      sinon.stub(cli, 'clearScreen'); sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
       sinon.stub(cli, 'startTests').returns(Promise.reject());
       clock = sinon.useFakeTimers();
     });
@@ -66,7 +79,6 @@ feature('file watch', (scenario) => {
       fs.watch.restore();
       cli.startTests.restore();
       clock.restore();
-      cli.clearScreen.restore();
     });
 
     given('a directory watch', () => {
@@ -84,23 +96,21 @@ feature('file watch', (scenario) => {
   });
 
   scenario('wait for rerun until current test run is completed', ({ before, after, given, when, and, then }) => {
+    let clock;
     let fsWatchCallback;
     let startTestsResolver;
-    let clock;
 
     before(() => {
       sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
       sinon.stub(cli, 'startTests').returns(new Promise((resolve) => {
         startTestsResolver = resolve;
       }));
-      sinon.stub(cli, 'clearScreen');
       clock = sinon.useFakeTimers();
     });
 
     after(() => {
       fs.watch.restore();
       cli.startTests.restore();
-      cli.clearScreen.restore();
       clock.restore();
     });
 
@@ -127,6 +137,57 @@ feature('file watch', (scenario) => {
 
     then('tests should run again', () => {
       assert(cli.startTests.calledTwice, 'startTests should have been twice');
+    });
+  });
+
+  scenario('should not exit on failures in watch mode', ({ after, given, when, then }) => {
+    const testCompletedEmitter = new EventEmitter();
+    let process;
+    let processClosed = false;
+
+    function waitForCommpletedRun() {
+      return new Promise((resolve) => {
+        testCompletedEmitter.on('completed', resolve);
+      });
+    }
+
+    after(() => {
+      process.kill();
+    });
+
+    given('a started kuta process', () => {
+      process = spawn('./bin/cli.js', ['-w', 'test-files', 'test-files/failing-tests.js']);
+      process.stdout.on('data', (data) => {
+
+        const matches = data.toString().match(/Failed: 2/g);
+        if (matches && matches.length === 1) {
+          testCompletedEmitter.emit('completed');
+        }
+      });
+      process.on('close', () => {
+        processClosed = true;
+      });
+    });
+
+    when('some time flies', () => {
+      return waitForCommpletedRun();
+    });
+
+    when('a file is changed', () => {
+      return new Promise((resolve, reject) => {
+        exec('touch ./test-files/failing-tests.js', (error) => {
+          if (error) return reject(error);
+          return resolve();
+        });
+      });
+    });
+
+    when('some more time flies', () => {
+      return waitForCommpletedRun();
+    });
+
+    then('process should not be killed', () => {
+      assert.equal(processClosed, false);
     });
   });
 });

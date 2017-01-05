@@ -62,7 +62,7 @@ function promiseGlob(globPattern) {
   });
 }
 
-function startTests() {
+function startTests(watchMode) {
   return readFromConfig()
     .then((config) => {
       const args = minimist(process.argv.slice(2));
@@ -92,10 +92,13 @@ function startTests() {
       log('');
       log(colors.bold(`Passed: ${colors.green(results.successes)}`));
       log(colors.bold(`Failed: ${colors.red(results.errors)}`));
-
-      if (results.errors > 0) {
-        process.exit(EXIT_CODE_FAILURES);
+      if (!watchMode) {
+        if(results.errors > 0) {
+          process.exit(EXIT_CODE_FAILURES);
+        }
       }
+
+      return results;
     })
     .catch((err) => {
       process.exit(EXIT_CODE_FAILURES);
@@ -110,16 +113,16 @@ function clearScreen() {
 let testInProgress = false;
 let startNewRun = false;
 
-function runTests() {
+function runTests(watchMode) {
   testInProgress = true;
   // TODO: Move startTest to seperate file for easier stubbing than this
-  module.exports.startTests().then(() => {
+  module.exports.startTests(watchMode).then(() => {
     testInProgress = false;
     if (startNewRun) {
       testInProgress = true;
       startNewRun = false;
       module.exports.clearScreen();
-      runTests();
+      runTests(watchMode);
     }
   });
 }
@@ -136,7 +139,7 @@ function startWatch(dirs) {
   function _triggerNewRun() {
     if (!testInProgress) {
       module.exports.clearScreen();
-      runTests();
+      runTests(true);
     } else {
       startNewRun = true;
     }
@@ -159,12 +162,12 @@ if (require.main === module) {
       if (typeof watch !== 'string') {
         return log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
       }
-      if (watch.length > 1) {
+      const watchMode = watch.length > 1;
+      if (watchMode) {
         startWatch(watch.split(','));
       }
+      runTests(watchMode);
     });
-
-  setImmediate(runTests);
 }
 
 module.exports = {
