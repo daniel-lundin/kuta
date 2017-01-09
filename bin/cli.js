@@ -49,6 +49,7 @@ function printUsage() {
   log('  -p, --processes\t\tNumber of processes in the process pool');
   log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
   log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
+  log('  -h, --help \t\t\tPrint this help');
   log('');
   process.exit(EXIT_CODE_USAGE);
 }
@@ -71,7 +72,7 @@ function startTests(watchMode) {
       }
 
       const requires = [].concat(args.require || []).concat([].concat(args.r || []));
-      const processes = parseInt(args.processes || args.p || 4, 10);
+      const processes = parseInt(args.processes || args.p, 10);
       const timeout = args.timeout || args.t;
       const files = args._;
 
@@ -82,7 +83,7 @@ function startTests(watchMode) {
         .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
         .then((files) => ({
           requires: requires.length ? requires : config.requires,
-          processes: processes.length ? processes : config.processes,
+          processes: processes || config.processes,
           timeout: timeout ? timeout : config.timeout,
           files
         }));
@@ -155,9 +156,12 @@ function startWatch(dirs) {
 }
 
 if (require.main === module) {
+  const args = minimist(process.argv.slice(2));
+  if (args.h || args.help) {
+    printUsage();
+  }
   readFromConfig()
     .then((config) => {
-      const args = minimist(process.argv.slice(2));
       const watch = args.w || args.watch || config.watch;
       if (typeof watch !== 'string') {
         return log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
