@@ -4,10 +4,30 @@ const fs = require('fs');
 const EventEmitter = require('events');
 
 const cli = require('../bin/cli');
+const logger = require('../lib/logger');
 const test = require('../lib/kuta').test;
 const feature = require('../lib/bdd').feature;
 const assert = require('assert');
 const sinon = require('sinon');
+
+function processAsEmitter() {
+  process = spawn('./bin/cli.js', ['-w', 'test-files', 'test-files/failing-tests.js']);
+  let processClosed = false;
+  let failures;
+  let passes;
+  const eventEmitter = new EventEmitter();
+
+  process.stdout.on('data', (data) => {
+    const matches = data.toString().match(/Failed: 2/g);
+    if (matches && matches.length === 1) {
+      testCompletedEmitter.emit('completed');
+    }
+  });
+
+  process.on('close', () => {
+    processClosed = true;
+  });
+}
 
 function promisedExec(command, args, onData = () => {}) {
   return new Promise((resolve, reject) => {
@@ -70,6 +90,7 @@ feature('file watch', (scenario) => {
     let clock;
 
     before(() => {
+      sinon.stub(logger, 'log');
       sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
       sinon.stub(cli, 'startTests').returns(Promise.reject());
       clock = sinon.useFakeTimers();
@@ -79,6 +100,7 @@ feature('file watch', (scenario) => {
       fs.watch.restore();
       cli.startTests.restore();
       clock.restore();
+      logger.log.restore();
     });
 
     given('a directory watch', () => {
@@ -102,6 +124,7 @@ feature('file watch', (scenario) => {
 
     before(() => {
       sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(logger, 'log');
       sinon.stub(cli, 'startTests').returns(new Promise((resolve) => {
         startTestsResolver = resolve;
       }));
@@ -112,6 +135,7 @@ feature('file watch', (scenario) => {
       fs.watch.restore();
       cli.startTests.restore();
       clock.restore();
+      logger.log.restore();
     });
 
     given('a directory watch', () => {
@@ -157,8 +181,8 @@ feature('file watch', (scenario) => {
 
     given('a started kuta process', () => {
       process = spawn('./bin/cli.js', ['-w', 'test-files', 'test-files/failing-tests.js']);
-      process.stdout.on('data', (data) => {
 
+      process.stdout.on('data', (data) => {
         const matches = data.toString().match(/Failed: 2/g);
         if (matches && matches.length === 1) {
           testCompletedEmitter.emit('completed');
@@ -189,5 +213,10 @@ feature('file watch', (scenario) => {
     then('process should not be killed', () => {
       assert.equal(processClosed, false);
     });
+  });
+});
+
+feature('test matching', (scenario) => {
+  scenario('should only run matching tests', () => {
   });
 });

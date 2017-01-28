@@ -5,8 +5,10 @@ const minimist = require('minimist');
 const colors = require('colors');
 const glob = require('glob');
 const fs = require('fs');
+// const readline = require('readline');
 
 const runner = require(path.join(__dirname, '../lib/runner'));
+const logger = require(path.join(__dirname, '../lib/logger'));
 
 const EXIT_CODE_USAGE = 1;
 const EXIT_CODE_FAILURES = 2;
@@ -35,22 +37,20 @@ function readFromConfig() {
     });
   });
 }
-function log(...args) {
-  console.log(...args); // eslint-disable-line
-}
+
 
 function printUsage() {
-  log('');
-  log('  Usage: kuta [options] testfiles');
-  log('');
-  log(' Options: ');
-  log('');
-  log('  -r, --require\t\t\tfiles to require before running tests');
-  log('  -p, --processes\t\tNumber of processes in the process pool');
-  log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
-  log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
-  log('  -h, --help \t\t\tPrint this help');
-  log('');
+  logger.log('');
+  logger.log('  Usage: kuta [options] testfiles');
+  logger.log('');
+  logger.log(' Options: ');
+  logger.log('');
+  logger.log('  -r, --require\t\t\tfiles to require before running tests');
+  logger.log('  -p, --processes\t\tNumber of processes in the process pool');
+  logger.log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
+  logger.log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
+  logger.log('  -h, --help \t\t\tPrint this help');
+  logger.log('');
   process.exit(EXIT_CODE_USAGE);
 }
 
@@ -90,9 +90,9 @@ function startTests(watchMode) {
     })
     .then(({ files, requires, processes, timeout }) => runner.run(files, requires, processes, timeout))
     .then((results) => {
-      log('');
-      log(colors.bold(`Passed: ${colors.green(results.successes)}`));
-      log(colors.bold(`Failed: ${colors.red(results.errors)}`));
+      logger.log('');
+      logger.log(colors.bold(`Passed: ${colors.green(results.successes)}`));
+      logger.log(colors.bold(`Failed: ${colors.red(results.errors)}`));
       if (!watchMode) {
         if(results.errors > 0) {
           process.exit(EXIT_CODE_FAILURES);
@@ -103,13 +103,23 @@ function startTests(watchMode) {
     })
     .catch((err) => {
       process.exit(EXIT_CODE_FAILURES);
-      log('Something went wrong', err);
+      logger.log('Something went wrong', err);
     });
 }
 
 function clearScreen() {
-  log('\x1Bc');
+  logger.log('\x1Bc');
 }
+
+// function printInteractivePrompt() {
+//   logger.log('');
+//   logger.log('Commands:');
+//   logger.log('r - re-run tests');
+//   logger.log('m - enter a match regex');
+//   logger.log('mc - clear match regex');
+//   logger.log('x - exit');
+//   logger.log('>');
+// }
 
 let testInProgress = false;
 let startNewRun = false;
@@ -125,6 +135,9 @@ function runTests(watchMode) {
       module.exports.clearScreen();
       runTests(watchMode);
     }
+    // else {
+    //   printInteractivePrompt();
+    // }
   });
 }
 
@@ -153,6 +166,16 @@ function startWatch(dirs) {
       triggerNewRun();
     });
   });
+
+  // const rl = readline.createInterface({
+  //   input: process.stdin,
+  //   output: process.stdout
+  // });
+
+  // rl.question('', (answer) => {
+  //   logger.log('got answer', answer);
+  //   rl.close();
+  // });
 }
 
 if (require.main === module) {
@@ -164,7 +187,7 @@ if (require.main === module) {
     .then((config) => {
       const watch = args.w || args.watch || config.watch;
       if (typeof watch !== 'string') {
-        return log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
+        return logger.log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
       }
       const watchMode = watch.length > 1;
       if (watchMode) {
