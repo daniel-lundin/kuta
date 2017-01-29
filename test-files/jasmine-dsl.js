@@ -1,4 +1,5 @@
 const describe = require('../lib/bdd.js').describe;
+const assert = require('assert');
 const sinon = require('sinon');
 
 
@@ -28,6 +29,10 @@ describe('outer describe', (it) => {
     it.describe('inner inner describe', (it) => {
       it('deep down the rabbit hole', () => {
         sinon.assert.callCount(testObject.method, 2);
+      });
+
+      it('nested simple test', () => {
+        assert(true);
       });
     });
   });

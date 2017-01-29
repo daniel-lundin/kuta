@@ -265,4 +265,25 @@ feature('test matching', (scenario) => {
       assert.equal(kutaProcessEmitter.failures(), 0);
     });
   });
+
+  scenario('run nested matching test in group that does not match', ({ after, given, when, then }) => {
+    let kutaProcessEmitter;
+
+    after(() => {
+      kutaProcessEmitter && kutaProcessEmitter.kill();
+    });
+
+    given('a kuta process with match flag', () => {
+      kutaProcessEmitter = kutaAsEmitter(['test-files/jasmine-dsl.js', '-m', 'nested simple test']);
+    });
+
+    when('kuta process completed', () => {
+      return kutaProcessEmitter.waitForCompletedRun();
+    });
+
+    then('one test should have run', () => {
+      assert.equal(kutaProcessEmitter.passes(), 1);
+      assert.equal(kutaProcessEmitter.failures(), 0);
+    });
+  });
 });
