@@ -25,7 +25,7 @@ test('should run jasmine-style tests', () => {
   ];
   return runner.run(files, match, requires, processCount)
     .then((results) => {
-      assert.equal(results.successes, 3, 'should be 6 passing tests');
+      assert.equal(results.successes, 4, 'should be 4 passing tests');
     });
 });
 
