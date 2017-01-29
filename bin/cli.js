@@ -5,7 +5,7 @@ const minimist = require('minimist');
 const colors = require('colors');
 const glob = require('glob');
 const fs = require('fs');
-// const readline = require('readline');
+const readline = require('readline');
 
 const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
@@ -56,6 +56,15 @@ function printUsage() {
   process.exit(EXIT_CODE_USAGE);
 }
 
+function printInteractivePrompt() {
+  logger.log('');
+  logger.log('Commands:');
+  logger.log('r - re-run tests');
+  logger.log('m - enter a match regex');
+  logger.log('mc - clear match regex');
+  logger.log('x - exit\n>');
+}
+
 function promiseGlob(globPattern) {
   return new Promise((resolve, reject) => {
     glob(globPattern, (err, files) => {
@@ -65,7 +74,7 @@ function promiseGlob(globPattern) {
   });
 }
 
-function startTests(watchMode) {
+function startTests(watchMode, testMatch = null) {
   return readFromConfig()
     .then((config) => {
       const args = minimist(process.argv.slice(2));
@@ -86,7 +95,7 @@ function startTests(watchMode) {
         .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
         .then((files) => ({
           requires: requires.length ? requires : config.requires,
-          match: match.length ? match : config.match,
+          match: testMatch ? testMatch : match.length ? match : config.match,
           processes: processes || config.processes,
           timeout: timeout ? timeout : config.timeout,
           files
@@ -118,21 +127,25 @@ function clearScreen() {
 let testInProgress = false;
 let startNewRun = false;
 
-function runTests(watchMode) {
+function runTests(watchMode, testMatch) {
   testInProgress = true;
   // TODO: Move startTest to seperate file for easier stubbing than this
-  module.exports.startTests(watchMode).then(() => {
+  module.exports.startTests(watchMode, testMatch).then(() => {
     testInProgress = false;
     if (startNewRun) {
       testInProgress = true;
       startNewRun = false;
       module.exports.clearScreen();
-      runTests(watchMode);
+      runTests(watchMode, testMatch);
+    } else {
+      printInteractivePrompt();
     }
   });
 }
 
 function startWatch(dirs) {
+  let testMatch = [];
+
   function debounce(fn, delay) {
     let timer = null;
     return function() {
@@ -144,7 +157,7 @@ function startWatch(dirs) {
   function _triggerNewRun() {
     if (!testInProgress) {
       module.exports.clearScreen();
-      runTests(true);
+      runTests(true, testMatch);
     } else {
       startNewRun = true;
     }
@@ -156,6 +169,29 @@ function startWatch(dirs) {
     fs.watch(dir, () => {
       triggerNewRun();
     });
+  });
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  rl.on('line', (input) => {
+    if (input === 'r') {
+      triggerNewRun();
+    }
+
+    if (input.startsWith('m ')) {
+      testMatch = [input.slice(2)];
+    }
+
+    if (input === 'mc') {
+      testMatch = [];
+    }
+
+    if (input === 'x') {
+      process.exit(0);
+    }
   });
 }
 
