@@ -29,7 +29,7 @@ test('should spawn processes for process pool', () => {
   const timeout = 2000;
   return runner.run(files, match, requires, processCount, timeout, logger)
     .then((results) => {
-      assert.equal(results.successes, 4, 'should be 6 passing tests');
+      assert.equal(results.successes, 6, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 2, 'Should spawn two processes');
     });
 });
@@ -46,7 +46,7 @@ test('should reuse process if test files are greater than processes', () => {
   const timeout = 2000;
   return runner.run(files, match, requires, processCount, timeout, logger)
     .then((results) => {
-      assert.equal(results.successes, 4, 'should be 6 passing tests');
+      assert.equal(results.successes, 6, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 1, 'Should spawn one processes');
     });
 });

@@ -224,7 +224,7 @@ feature('file watch', (scenario) => {
 });
 
 feature('test matching', (scenario) => {
-  scenario('should only run matching tests', ({ after, given, when, then }) => {
+  scenario('only run matching tests', ({ after, given, when, then }) => {
     let kutaProcessEmitter;
 
     after(() => {
@@ -241,6 +241,27 @@ feature('test matching', (scenario) => {
 
     then('two tests should have run', () => {
       assert.equal(kutaProcessEmitter.passes(), 2);
+      assert.equal(kutaProcessEmitter.failures(), 0);
+    });
+  });
+
+  scenario('run tests in groups that match', ({ after, given, when, then }) => {
+    let kutaProcessEmitter;
+
+    after(() => {
+      kutaProcessEmitter && kutaProcessEmitter.kill();
+    });
+
+    given('a kuta process with match flag', () => {
+      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', 'simple']);
+    });
+
+    when('kuta process completed', () => {
+      return kutaProcessEmitter.waitForCompletedRun();
+    });
+
+    then('six tests should have run', () => {
+      assert.equal(kutaProcessEmitter.passes(), 6);
       assert.equal(kutaProcessEmitter.failures(), 0);
     });
   });

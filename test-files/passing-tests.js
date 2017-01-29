@@ -12,3 +12,12 @@ test('another simple test 1', () => {
   assert(true);
 });
 
+test.group('simple group', (t) => {
+  t('group test 1', () => {
+    assert(true);
+  });
+
+  t('group test 2', () => {
+    assert(true);
+  });
+});
