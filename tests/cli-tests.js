@@ -193,7 +193,7 @@ feature('file watch', (scenario) => {
     let kutaProcessEmitter;
 
     after(() => {
-      kutaProcessEmitter.kill();
+      kutaProcessEmitter && kutaProcessEmitter.kill();
     });
 
     given('a started kuta process', () => {
@@ -228,7 +228,7 @@ feature('test matching', (scenario) => {
     let kutaProcessEmitter;
 
     after(() => {
-      kutaProcessEmitter.kill();
+      kutaProcessEmitter && kutaProcessEmitter.kill();
     });
 
     given('a kuta process with match flag', () => {
