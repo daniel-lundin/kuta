@@ -10,16 +10,21 @@ const feature = require('../lib/bdd').feature;
 const assert = require('assert');
 const sinon = require('sinon');
 
-function processAsEmitter() {
-  process = spawn('./bin/cli.js', ['-w', 'test-files', 'test-files/failing-tests.js']);
+function kutaAsEmitter(processArgs) {
+  const process = spawn('./bin/cli.js', processArgs);
   let processClosed = false;
   let failures;
   let passes;
-  const eventEmitter = new EventEmitter();
+  let dataRead = '';
+  const testCompletedEmitter = new EventEmitter();
 
   process.stdout.on('data', (data) => {
-    const matches = data.toString().match(/Failed: 2/g);
-    if (matches && matches.length === 1) {
+    dataRead += data.toString();
+    const matches = dataRead.match(/Passed: (\d+)\nFailed: (\d+)/);
+    if (matches && matches.length === 3) {
+      dataRead = '';
+      passes = parseInt(matches[1], 10);
+      failures = parseInt(matches[2], 10);
       testCompletedEmitter.emit('completed');
     }
   });
@@ -27,6 +32,26 @@ function processAsEmitter() {
   process.on('close', () => {
     processClosed = true;
   });
+
+  return {
+    waitForCompletedRun() {
+      return new Promise((resolve) => {
+        testCompletedEmitter.on('completed', resolve);
+      });
+    },
+    failures() {
+      return failures;
+    },
+    passes() {
+      return passes;
+    },
+    isClosed() {
+      return processClosed;
+    },
+    kill() {
+      process.kill();
+    }
+  };
 }
 
 function promisedExec(command, args, onData = () => {}) {
@@ -165,36 +190,18 @@ feature('file watch', (scenario) => {
   });
 
   scenario('should not exit on failures in watch mode', ({ after, given, when, then }) => {
-    const testCompletedEmitter = new EventEmitter();
-    let process;
-    let processClosed = false;
-
-    function waitForCommpletedRun() {
-      return new Promise((resolve) => {
-        testCompletedEmitter.on('completed', resolve);
-      });
-    }
+    let kutaProcessEmitter;
 
     after(() => {
-      process.kill();
+      kutaProcessEmitter.kill();
     });
 
     given('a started kuta process', () => {
-      process = spawn('./bin/cli.js', ['-w', 'test-files', 'test-files/failing-tests.js']);
-
-      process.stdout.on('data', (data) => {
-        const matches = data.toString().match(/Failed: 2/g);
-        if (matches && matches.length === 1) {
-          testCompletedEmitter.emit('completed');
-        }
-      });
-      process.on('close', () => {
-        processClosed = true;
-      });
+      kutaProcessEmitter = kutaAsEmitter(['-w', 'test-files', 'test-files/failing-tests.js']);
     });
 
     when('some time flies', () => {
-      return waitForCommpletedRun();
+      return kutaProcessEmitter.waitForCompletedRun();
     });
 
     when('a file is changed', () => {
@@ -207,16 +214,34 @@ feature('file watch', (scenario) => {
     });
 
     when('some more time flies', () => {
-      return waitForCommpletedRun();
+      return kutaProcessEmitter.waitForCompletedRun();
     });
 
     then('process should not be killed', () => {
-      assert.equal(processClosed, false);
+      assert.equal(kutaProcessEmitter.isClosed(), false);
     });
   });
 });
 
 feature('test matching', (scenario) => {
-  scenario('should only run matching tests', () => {
+  scenario('should only run matching tests', ({ after, given, when, then }) => {
+    let kutaProcessEmitter;
+
+    after(() => {
+      kutaProcessEmitter.kill();
+    });
+
+    given('a kuta process with match flag', () => {
+      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', 'a simple']);
+    });
+
+    when('kuta process completed', () => {
+      return kutaProcessEmitter.waitForCompletedRun();
+    });
+
+    then('two tests should have run', () => {
+      assert.equal(kutaProcessEmitter.passes(), 2);
+      assert.equal(kutaProcessEmitter.failures(), 0);
+    });
   });
 });

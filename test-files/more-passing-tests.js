@@ -1,14 +1,14 @@
 const test = require('../lib/kuta.js').test;
 const assert = require('assert');
 
-test('async test', () => {
+test('a simple test 2', () => {
   return new Promise((resolve) => {
     assert(true);
     setTimeout(resolve, 1);
   });
 });
 
-test('simple sync test', () => {
+test('another simple test 2', () => {
   assert(true);
 });
 
