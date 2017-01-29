@@ -9,6 +9,7 @@ const fs = require('fs');
 
 const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
+const utils = require(path.join(__dirname, '../lib/utils'));
 
 const EXIT_CODE_USAGE = 1;
 const EXIT_CODE_FAILURES = 2;
@@ -32,7 +33,8 @@ function readFromConfig() {
         requires: kutaConfig.requires || [],
         files: kutaConfig.files || [],
         timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
-        watch: kutaConfig.watch || ''
+        watch: kutaConfig.watch || '',
+        match: kutaConfig.match || []
       });
     });
   });
@@ -71,7 +73,8 @@ function startTests(watchMode) {
         printUsage();
       }
 
-      const requires = [].concat(args.require || []).concat([].concat(args.r || []));
+      const requires = utils.arrayParam(args.require, args.r);
+      const match = utils.arrayParam(args.match, args.m);
       const processes = parseInt(args.processes || args.p, 10);
       const timeout = args.timeout || args.t;
       const files = args._;
@@ -83,12 +86,13 @@ function startTests(watchMode) {
         .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
         .then((files) => ({
           requires: requires.length ? requires : config.requires,
+          match: match.length ? match : config.match,
           processes: processes || config.processes,
           timeout: timeout ? timeout : config.timeout,
           files
         }));
     })
-    .then(({ files, requires, processes, timeout }) => runner.run(files, requires, processes, timeout))
+    .then(({ files, match, requires, processes, timeout }) => runner.run(files, match, requires, processes, timeout))
     .then((results) => {
       logger.log('');
       logger.log(colors.bold(`Passed: ${colors.green(results.successes)}`));
@@ -111,16 +115,6 @@ function clearScreen() {
   logger.log('\x1Bc');
 }
 
-// function printInteractivePrompt() {
-//   logger.log('');
-//   logger.log('Commands:');
-//   logger.log('r - re-run tests');
-//   logger.log('m - enter a match regex');
-//   logger.log('mc - clear match regex');
-//   logger.log('x - exit');
-//   logger.log('>');
-// }
-
 let testInProgress = false;
 let startNewRun = false;
 
@@ -135,9 +129,6 @@ function runTests(watchMode) {
       module.exports.clearScreen();
       runTests(watchMode);
     }
-    // else {
-    //   printInteractivePrompt();
-    // }
   });
 }
 
@@ -166,16 +157,6 @@ function startWatch(dirs) {
       triggerNewRun();
     });
   });
-
-  // const rl = readline.createInterface({
-  //   input: process.stdin,
-  //   output: process.stdout
-  // });
-
-  // rl.question('', (answer) => {
-  //   logger.log('got answer', answer);
-  //   rl.close();
-  // });
 }
 
 if (require.main === module) {

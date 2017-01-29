@@ -68,7 +68,7 @@ kuta.test('measure time for each test', () => {
     return promiseTimeout(() => {}, 200);
   });
 
-  return test._runTests()
+  return test._runTests('a testfile', [])
     .then((result) => {
       const testResult = result.results[0];
       expect(testResult).to.have.property('time');
@@ -99,7 +99,7 @@ feature('timeouts', (scenario) => {
     });
 
     when('the testSuite starts running', () => {
-      suitePromise = testSuite._runTests('a filename');
+      suitePromise = testSuite._runTests('a filename', []);
     });
 
     when('clock runs 1000ms', () => {

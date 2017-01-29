@@ -19,6 +19,7 @@ test.afterEach(() => {
 
 test('should spawn processes for process pool', () => {
   const requires = [];
+  const match = [];
   const processCount = 2;
   const files = [
     'test-files/passing-tests.js',
@@ -26,7 +27,7 @@ test('should spawn processes for process pool', () => {
   ];
   const logger = () => {};
   const timeout = 2000;
-  return runner.run(files, requires, processCount, timeout, logger)
+  return runner.run(files, match, requires, processCount, timeout, logger)
     .then((results) => {
       assert.equal(results.successes, 4, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 2, 'Should spawn two processes');
@@ -35,6 +36,7 @@ test('should spawn processes for process pool', () => {
 
 test('should reuse process if test files are greater than processes', () => {
   const requires = [];
+  const match = [];
   const processCount = 1;
   const files = [
     'test-files/passing-tests.js',
@@ -42,7 +44,7 @@ test('should reuse process if test files are greater than processes', () => {
   ];
   const logger = () => {};
   const timeout = 2000;
-  return runner.run(files, requires, processCount, timeout, logger)
+  return runner.run(files, match, requires, processCount, timeout, logger)
     .then((results) => {
       assert.equal(results.successes, 4, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 1, 'Should spawn one processes');
