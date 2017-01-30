@@ -11,6 +11,7 @@ const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
 const utils = require(path.join(__dirname, '../lib/utils'));
 
+const EXIT_CODE_OK = 0;
 const EXIT_CODE_USAGE = 1;
 const EXIT_CODE_FAILURES = 2;
 
@@ -41,7 +42,7 @@ function readFromConfig() {
 }
 
 
-function printUsage() {
+function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log('');
   logger.log('  Usage: kuta [options] testfiles');
   logger.log('');
@@ -51,18 +52,20 @@ function printUsage() {
   logger.log('  -p, --processes\t\tNumber of processes in the process pool');
   logger.log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
   logger.log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
+  logger.log('  -m, --match\t\t\tRun only test that match this string');
   logger.log('  -h, --help \t\t\tPrint this help');
   logger.log('');
-  process.exit(EXIT_CODE_USAGE);
+  process.exit(exitCode);
 }
 
 function printInteractivePrompt() {
   logger.log('');
   logger.log('Commands:');
   logger.log('r - re-run tests');
-  logger.log('m - enter a match regex');
-  logger.log('mc - clear match regex');
-  logger.log('x - exit\n>');
+  logger.log('m - enter a match string');
+  logger.log('mc - clear match string');
+  logger.log('x - exit');
+  logger.logNoNL('> ');
 }
 
 function promiseGlob(globPattern) {
@@ -101,7 +104,11 @@ function startTests(watchMode, testMatch = null) {
           files
         }));
     })
-    .then(({ files, match, requires, processes, timeout }) => runner.run(files, match, requires, processes, timeout))
+    .then(({ files, match, requires, processes, timeout }) => {
+      const matchInfo = match.length ? ` with match "${match[0]}"` : '';
+      logger.log(`Running ${files.length} test files${matchInfo}...\n`);
+      return runner.run(files, match, requires, processes, timeout)
+    })
     .then((results) => {
       logger.log('');
       logger.log(colors.bold(`Passed: ${colors.green(results.successes)}`));
@@ -136,8 +143,10 @@ function runTests(watchMode, testMatch) {
       testInProgress = true;
       startNewRun = false;
       module.exports.clearScreen();
-      runTests(watchMode, testMatch);
-    } else {
+      return runTests(watchMode, testMatch);
+    }
+
+    if (watchMode) {
       printInteractivePrompt();
     }
   });
@@ -183,13 +192,22 @@ function startWatch(dirs) {
 
     if (input.startsWith('m ')) {
       testMatch = [input.slice(2)];
+      logger.log('');
+      logger.log(colors.bold(`Match set to "${testMatch[0]}"`));
+      printInteractivePrompt();
     }
 
     if (input === 'mc') {
       testMatch = [];
+      logger.log('');
+      logger.log(colors.bold('Match cleared'));
+      printInteractivePrompt();
     }
 
     if (input === 'x') {
+      logger.log('');
+      logger.log(colors.rainbow('kthxbai!'));
+      logger.log('');
       process.exit(0);
     }
   });
@@ -198,11 +216,11 @@ function startWatch(dirs) {
 if (require.main === module) {
   const args = minimist(process.argv.slice(2));
   if (args.h || args.help) {
-    printUsage();
+    printUsage(EXIT_CODE_OK);
   }
   readFromConfig()
     .then((config) => {
-      const watch = args.w || args.watch || config.watch;
+      const watch = args.w || args.watch || config.watch || '';
       if (typeof watch !== 'string') {
         return logger.log(`${colors.bold(colors.yellow('Warning:'))} watch parameter must be a comma-sperated string\n`);
       }
