@@ -69,6 +69,7 @@ Tests are run with the kuta command:
    -r, --require            Files to require before running tests
    -p, --processes          Number of processes in the process pool
    -t, --timeout            Number of milliseconds before tests timeout
+   -m, --match              Run only test that match this string
    -w, --watch [dir1,dir2]  Directories to watch for changes and re-run tests
 ```
 
