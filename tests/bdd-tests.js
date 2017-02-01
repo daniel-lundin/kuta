@@ -1,31 +1,23 @@
 const assert = require('assert');
 
 const test = require('../lib/kuta.js').test;
-const runner = require('../lib/runner');
+const kutaAsEmitter = require('./helpers/process-emitter').kutaAsEmitter;
 
 test('should run bdd-style tests', () => {
-  const requires = [];
-  const match = [];
-  const processCount = 2;
-  const files = [
-    'test-files/bdd-file'
-  ];
-  return runner.run(files, match, requires, processCount)
-    .then((results) => {
-      assert.equal(results.successes, 3, 'should be 6 passing tests');
+  const kutaEmitter = kutaAsEmitter(['test-files/bdd-file.js']);
+
+  return kutaEmitter.waitForCompletedRun()
+    .then(() => {
+      assert.equal(kutaEmitter.passes(), 3);
     });
 });
 
 test('should run jasmine-style tests', () => {
-  const requires = [];
-  const match = [];
-  const processCount = 2;
-  const files = [
-    'test-files/jasmine-dsl'
-  ];
-  return runner.run(files, match, requires, processCount)
-    .then((results) => {
-      assert.equal(results.successes, 4, 'should be 4 passing tests');
+  const kutaEmitter = kutaAsEmitter(['test-files/jasmine-dsl.js']);
+
+  return kutaEmitter.waitForCompletedRun()
+    .then(() => {
+      assert.equal(kutaEmitter.passes(), 4);
     });
 });
 

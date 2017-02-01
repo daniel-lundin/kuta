@@ -13,7 +13,7 @@
       "assert"
     ],
     "files": [
-      "tests/*.js"
+      "tests/*-tests.js"
     ],
     "processes": 4
   },
@@ -27,6 +27,8 @@
     "url": "https://github.com/daniel-lundin/kuta.git"
   },
   "dependencies": {
+    "ascii-progress": "^1.0.5",
+    "cli-cursor": "^2.1.0",
     "colors": "^1.1.2",
     "glob": "^7.1.1",
     "minimist": "^1.2.0"

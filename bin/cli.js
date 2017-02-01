@@ -107,7 +107,7 @@ function startTests(watchMode, testMatch = null) {
     .then(({ files, match, requires, processes, timeout }) => {
       const matchInfo = match.length ? ` with match "${match[0]}"` : '';
       logger.log(`Running ${files.length} test files${matchInfo}...\n`);
-      return runner.run(files, match, requires, processes, timeout);
+      return runner.run(files, match, requires, processes, timeout, logger);
     })
     .then((results) => {
       logger.log('');

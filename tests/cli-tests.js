@@ -1,7 +1,6 @@
 const spawn = require('child_process').spawn;
 const exec = require('child_process').exec;
 const fs = require('fs');
-const EventEmitter = require('events');
 
 const cli = require('../bin/cli');
 const logger = require('../lib/logger');
@@ -9,50 +8,7 @@ const test = require('../lib/kuta').test;
 const feature = require('../lib/bdd').feature;
 const assert = require('assert');
 const sinon = require('sinon');
-
-function kutaAsEmitter(processArgs) {
-  const process = spawn('./bin/cli.js', processArgs);
-  let processClosed = false;
-  let failures;
-  let passes;
-  let dataRead = '';
-  const testCompletedEmitter = new EventEmitter();
-
-  process.stdout.on('data', (data) => {
-    dataRead += data.toString();
-    const matches = dataRead.match(/Passed: (\d+)\nFailed: (\d+)/);
-    if (matches && matches.length === 3) {
-      dataRead = '';
-      passes = parseInt(matches[1], 10);
-      failures = parseInt(matches[2], 10);
-      testCompletedEmitter.emit('completed');
-    }
-  });
-
-  process.on('close', () => {
-    processClosed = true;
-  });
-
-  return {
-    waitForCompletedRun() {
-      return new Promise((resolve) => {
-        testCompletedEmitter.on('completed', resolve);
-      });
-    },
-    failures() {
-      return failures;
-    },
-    passes() {
-      return passes;
-    },
-    isClosed() {
-      return processClosed;
-    },
-    kill() {
-      process.kill();
-    }
-  };
-}
+const kutaAsEmitter = require('./helpers/process-emitter').kutaAsEmitter;
 
 function promisedExec(command, args, onData = () => {}) {
   return new Promise((resolve, reject) => {
