@@ -24,16 +24,18 @@ const dummyLogger = {
   showCursor() {}
 };
 
+const requires = [];
+const match = [];
+const reporter = 'spec';
+const timeout = 2000;
+
 test('should spawn processes for process pool', () => {
-  const requires = [];
-  const match = [];
-  const processCount = 2;
   const files = [
     'test-files/passing-tests.js',
     'test-files/more-passing-tests.js',
   ];
-  const timeout = 2000;
-  return runner.run(files, match, requires, processCount, timeout, dummyLogger)
+  const processCount = 2;
+  return runner.run(files, match, requires, processCount, reporter, timeout, dummyLogger)
     .then((results) => {
       assert.equal(results.successes, 6, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 2, 'Should spawn two processes');
@@ -41,15 +43,12 @@ test('should spawn processes for process pool', () => {
 });
 
 test('should reuse process if test files are greater than processes', () => {
-  const requires = [];
-  const match = [];
   const processCount = 1;
   const files = [
     'test-files/passing-tests.js',
     'test-files/more-passing-tests.js'
   ];
-  const timeout = 2000;
-  return runner.run(files, match, requires, processCount, timeout, dummyLogger)
+  return runner.run(files, match, requires, processCount, reporter, timeout, dummyLogger)
     .then((results) => {
       assert.equal(results.successes, 6, 'should be 6 passing tests');
       assert.equal(childProcess.fork.callCount, 1, 'Should spawn one processes');

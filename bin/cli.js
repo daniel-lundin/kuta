@@ -24,7 +24,10 @@ function readFromConfig() {
         return resolve({
           processes: 4,
           requires: [],
-          files: []
+          files: [],
+          watch: '',
+          match: [],
+          reporter: 'spec'
         });
       }
       const config = JSON.parse(data);
@@ -35,7 +38,8 @@ function readFromConfig() {
         files: kutaConfig.files || [],
         timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
         watch: kutaConfig.watch || '',
-        match: kutaConfig.match || []
+        match: kutaConfig.match || [],
+        reporter: kutaConfig.reporter || 'spec'
       });
     });
   });
@@ -89,6 +93,7 @@ function startTests(watchMode, testMatch = null) {
       const match = utils.arrayParam(args.match, args.m);
       const processes = parseInt(args.processes || args.p, 10);
       const timeout = args.timeout || args.t;
+      const reporter = args.reporter;
       const files = args._;
 
       const filePromises = (files.length ? files : config.files)
@@ -101,13 +106,14 @@ function startTests(watchMode, testMatch = null) {
           match: testMatch ? testMatch : match.length ? match : config.match,
           processes: processes || config.processes,
           timeout: timeout ? timeout : config.timeout,
+          reporter: reporter || config.reporter,
           files
         }));
     })
-    .then(({ files, match, requires, processes, timeout }) => {
+    .then(({ files, match, requires, processes, reporter, timeout }) => {
       const matchInfo = match.length ? ` with match "${match[0]}"` : '';
       logger.log(`Running ${files.length} test files${matchInfo}...\n`);
-      return runner.run(files, match, requires, processes, timeout, logger);
+      return runner.run(files, match, requires, processes, reporter, timeout, logger);
     })
     .then((results) => {
       logger.log('');
