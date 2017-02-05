@@ -60,7 +60,7 @@ export default function transformer(file, api) {
       importSpecifiers.push(j.importSpecifier(j.identifier('describe'), j.identifier('describe')));
     }
 
-    const kutaImport = j.importDeclaration(importSpecifiers, j.literal('kuta'));
+    const kutaImport = j.importDeclaration(importSpecifiers, j.literal('kuta/lib/bdd'));
     body.unshift(kutaImport);
   }
 
@@ -109,7 +109,7 @@ export default function transformer(file, api) {
       const featureShorthandProp = j.property('init', j.identifier('feature'), j.identifier('feature'))
       featureShorthandProp.shorthand = true;
       const newArrow = j.arrowFunctionExpression(
-        [createShorthandObject(['feature'])],
+        [j.identifier('scenario')],
         scopeFunctions(callback, hooks, 'scenario').body
       );
       const updatedFeature = j.callExpression(
