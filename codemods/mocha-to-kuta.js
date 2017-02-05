@@ -12,19 +12,19 @@ function arrayToLower(keywords) {
 export default function transformer(file, api) {
   const j = api.jscodeshift;
 
-  function scopeLifecycles(fn, identifier) {
+  function scopeFunctions(fn, functions, identifier) {
     const res = j(fn)
       .find(j.ExpressionStatement)
       .filter(path => path.parentPath.parentPath.parentPath.value === fn)
-      .filter(path => hooks.indexOf(path.value.expression.callee.name) !== -1);
+      .filter(path => functions.indexOf(path.value.expression.callee.name) !== -1);
 
     res.forEach((path) => {
       const member = j.memberExpression(
         j.identifier(identifier),
         path.value.expression.callee
       )
-      const expressionStmt = j.callExpression(member, path.value.expression.arguments)
-      j(path).replaceWith(j.expressionStatement(expressionStmt));
+      const callExpression = j.callExpression(member, path.value.expression.arguments)
+      j(path).replaceWith(j.expressionStatement(callExpression));
     });
     return fn;
   }
@@ -32,7 +32,7 @@ export default function transformer(file, api) {
   function arrowWithIt(fn) {
     return j.arrowFunctionExpression(
       [j.identifier('it')],
-      scopeLifecycles(fn, 'it').body
+      scopeFunctions(fn, hooks, 'it').body
     )
   }
 
@@ -82,6 +82,23 @@ export default function transformer(file, api) {
       }
     });
 
+  // Transform inner describes to it.describe
+  root
+    .find(j.CallExpression)
+    .filter(path => path.parentPath.parentPath.parentPath.value.type !== 'Program')
+    .forEach(path => {
+      if (path.node.callee.name === 'describe') {
+        console.log('path', path);
+        console.log('path.value', path.value);
+        const member = j.memberExpression(
+          j.identifier('it'),
+          path.node.callee
+        );
+        const callExpression = j.callExpression(member, path.node.arguments)
+        j(path).replaceWith(callExpression);
+      }
+  });
+
   // Transforms Feature('foo', () => {}) to feature('foo', ({ feature }) => { });
   root
     .find(j.CallExpression)
@@ -93,7 +110,7 @@ export default function transformer(file, api) {
       featureShorthandProp.shorthand = true;
       const newArrow = j.arrowFunctionExpression(
         [createShorthandObject(['feature'])],
-        scopeLifecycles(callback, 'scenario').body
+        scopeFunctions(callback, hooks, 'scenario').body
       );
       const updatedFeature = j.callExpression(
         j.identifier('feature'),
@@ -114,7 +131,6 @@ export default function transformer(file, api) {
     });
     return Array.from(keywords)
   }
-
 
   function decapitilizeBddKeywords(fn) {
     const res = j(fn)
@@ -152,4 +168,3 @@ export default function transformer(file, api) {
     arrowParensAlways: true
   });
 }
-
