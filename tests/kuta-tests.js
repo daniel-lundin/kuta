@@ -84,6 +84,48 @@ kuta.test('measure time for each test', () => {
     });
 });
 
+kuta.test('complete test by callback', () => {
+  const test = kuta._createTestGroup();
+  const testStub = sinon.stub();
+  const beforeStub = sinon.stub();
+
+  test.before((resolve) => {
+    setTimeout(() => {
+      beforeStub();
+      resolve();
+    }, 200);
+  });
+
+  test('a test', (resolve) => {
+    setTimeout(() => {
+      testStub();
+      resolve();
+    }, 200);
+  });
+
+  return test._runTests('a testfile', [])
+    .then(() => {
+      sinon.assert.calledOnce(beforeStub);
+      sinon.assert.calledOnce(testStub);
+    });
+});
+
+kuta.test('handle exception in callback-style test', () => {
+  const test = kuta._createTestGroup();
+
+  test('callback exception', (done) => {
+    setImmediate(() => {
+      assert(false);
+      done();
+    });
+  });
+
+  return test._runTests('a testfile', [])
+    .then((res) => {
+      assert.equal(res.results[0].result, common.TEST_FAILURE);
+    });
+});
+
 feature('timeouts', (scenario) => {
   scenario('timeout long running test', ({ before, after, given, when, then }) => {
     let clock;
