@@ -88,8 +88,6 @@ export default function transformer(file, api) {
     .filter(path => path.parentPath.parentPath.parentPath.value.type !== 'Program')
     .forEach(path => {
       if (path.node.callee.name === 'describe') {
-        console.log('path', path);
-        console.log('path.value', path.value);
         const member = j.memberExpression(
           j.identifier('it'),
           path.node.callee

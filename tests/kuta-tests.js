@@ -23,12 +23,14 @@ kuta.test('returning rejected promises should fail', () => {
 
 kuta.test.group('group test', (it) => {
   const firstBeforeEachSpy = sinon.stub();
+  const firstAfterEachSpy = sinon.stub();
   const firstBeforeSpy = sinon.stub();
   const firstAfterSpy = sinon.stub();
   const secondBeforeSpy = sinon.stub();
   const secondAfterSpy = sinon.stub();
 
   it.beforeEach(firstBeforeEachSpy);
+  it.afterEach(firstAfterEachSpy);
 
   it.group('first group', (t) => {
     t.before(firstBeforeSpy);
@@ -41,10 +43,12 @@ kuta.test.group('group test', (it) => {
     t.before(secondBeforeSpy);
 
     t('after from previous group should have been called before', () => {
+      sinon.assert.callCount(firstAfterEachSpy, 1);
       sinon.assert.callOrder(
         firstBeforeSpy,
         firstBeforeEachSpy,
         firstAfterSpy,
+        firstAfterEachSpy,
         secondBeforeSpy
       );
     });
