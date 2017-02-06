@@ -124,7 +124,7 @@ export default function transformer(file, api) {
       .filter(path => cakesKeywords.concat(hooks).indexOf(path.value.expression.callee.name) !== -1)
 
     const keywords = new Set();
-	res.forEach(path => {
+    res.forEach(path => {
       keywords.add(path.value.expression.callee.name);
     });
     return Array.from(keywords)

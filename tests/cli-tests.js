@@ -72,7 +72,7 @@ feature('file watch', (scenario) => {
 
     before(() => {
       sinon.stub(logger, 'log');
-      sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(fs, 'watch', (dir, opts, callback) => { fsWatchCallback = callback; });
       sinon.stub(cli, 'startTests').returns(Promise.reject());
       clock = sinon.useFakeTimers();
     });
@@ -104,7 +104,7 @@ feature('file watch', (scenario) => {
     let startTestsResolver;
 
     before(() => {
-      sinon.stub(fs, 'watch', (dir, callback) => { fsWatchCallback = callback; });
+      sinon.stub(fs, 'watch', (dir, opts, callback) => { fsWatchCallback = callback; });
       sinon.stub(logger, 'log');
       sinon.stub(cli, 'startTests').returns(new Promise((resolve) => {
         startTestsResolver = resolve;

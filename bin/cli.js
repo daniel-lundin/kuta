@@ -181,7 +181,10 @@ function startWatch(dirs) {
   const triggerNewRun = debounce(_triggerNewRun, 500);
 
   dirs.forEach((dir) => {
-    fs.watch(dir, () => {
+    const watchOpts = {
+      recursive: true
+    };
+    fs.watch(dir, watchOpts, () => {
       triggerNewRun();
     });
   });
