@@ -126,34 +126,41 @@ kuta.test('handle exception in callback-style test', () => {
     });
 });
 
+kuta.test('should let event loop run in between', () => {
+  const timeoutCall = sinon.stub();
+  const test = kuta._createTestGroup();
+
+  test('callback exception', () => {
+    setTimeout(() => {
+      timeoutCall();
+    }, 0);
+  });
+
+  test('timeout should have fired', () => {
+    sinon.assert.calledOnce(timeoutCall);
+  });
+
+  return test._runTests('a testfile', [])
+    .then((res) => {
+      assert.equal(res.results[0].result, common.TEST_SUCCESS);
+    });
+});
+
 feature('timeouts', (scenario) => {
-  scenario('timeout long running test', ({ before, after, given, when, then }) => {
-    let clock;
+  scenario('timeout long running test', ({ given, when, then }) => {
     let testSuite;
     let suitePromise;
 
-    before(() => {
-      clock = sinon.useFakeTimers();
-    });
-
-    after(() => {
-      clock.restore();
-    });
-
-    given('a test suite with a 1000ms test and timeout set to 500ms', () => {
+    given('a test suite with a 100ms test and timeout set to 50ms', () => {
       testSuite = kuta._createTestGroup();
 
-      testSuite.timeout(500)('a test', () => {
-        return promiseTimeout(() => {}, 1000);
+      testSuite.timeout(50)('a test', () => {
+        return promiseTimeout(() => {}, 100);
       });
     });
 
     when('the testSuite starts running', () => {
       suitePromise = testSuite._runTests('a filename', []);
-    });
-
-    when('clock runs 1000ms', () => {
-      clock.tick(1000);
     });
 
     then('the test in the suite should fail due to timeout', () => {
