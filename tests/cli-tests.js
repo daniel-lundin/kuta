@@ -58,7 +58,7 @@ test('exceptions in befores/afters mark tests in group failed', () => {
 
 test('should handle broken tests', () => {
   return promisedExec('./bin/cli.js', ['test-files/b0rked-test.js'])
-    .catch(({ code, stdout }) => {
+    .catch(({ code }) => {
       assert.equal(code, 10);
     });
 });
