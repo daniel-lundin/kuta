@@ -22,43 +22,45 @@ kuta.test('returning rejected promises should fail', () => {
 });
 
 kuta.test.group('group test', (it) => {
-  const firstBeforeEachSpy = sinon.stub();
-  const firstAfterEachSpy = sinon.stub();
-  const firstBeforeSpy = sinon.stub();
-  const firstAfterSpy = sinon.stub();
-  const secondBeforeSpy = sinon.stub();
-  const secondAfterSpy = sinon.stub();
+  const outerBeforeEach = sinon.stub();
+  const outerAfterEach = sinon.stub();
+  const firstBefore = sinon.stub();
+  const firstAfter = sinon.stub();
+  const secondBefore = sinon.stub();
 
-  it.beforeEach(firstBeforeEachSpy);
-  it.afterEach(firstAfterEachSpy);
+  it.beforeEach(outerBeforeEach);
+  it.afterEach(outerAfterEach);
 
   it.group('first group', (t) => {
-    t.before(firstBeforeSpy);
-    t.after(firstAfterSpy);
+    t.before(firstBefore);
+    t.after(firstAfter);
     t('first group tests', () => {
     });
   });
 
   it.group('second group', (t) => {
-    t.before(secondBeforeSpy);
+    t.before(secondBefore);
 
     t('after from previous group should have been called before', () => {
-      sinon.assert.callCount(firstAfterEachSpy, 1);
       sinon.assert.callOrder(
-        firstBeforeSpy,
-        firstBeforeEachSpy,
-        firstAfterSpy,
-        firstAfterEachSpy,
-        secondBeforeSpy
+        firstBefore,
+        outerBeforeEach,
+        outerAfterEach,
+        firstAfter,
+        secondBefore,
+        outerBeforeEach
       );
     });
 
-    t.after(secondAfterSpy);
+    t('beforeEach in outer group should run beforeEach tset in inner', () => {
+      sinon.assert.callCount(outerBeforeEach, 3);
+    });
   });
 });
 
 kuta.test.group('async before/afters', (t) => {
   const beforeFunc = sinon.spy();
+
   t.before(() => {
     return promiseTimeout(beforeFunc);
   });
@@ -69,7 +71,6 @@ kuta.test.group('async before/afters', (t) => {
 });
 
 kuta.test('measure time for each test', () => {
-
   const test = kuta._createTestGroup();
 
   test('a test', () => {
