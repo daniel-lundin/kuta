@@ -19,7 +19,7 @@ function promisedExec(command, args, onData = () => {}) {
       if (code === 0) {
         return resolve(stdout);
       }
-      return reject(stdout);
+      return reject({ stdout, code });
     });
 
     process.stdout.on('data', (data) => {
@@ -48,7 +48,7 @@ test('return non-zero exit code for failing tests', () => {
 
 test('exceptions in befores/afters mark tests in group failed', () => {
   return promisedExec('./bin/cli.js', ['test-files/failing-group.js'])
-    .catch((stdout) => {
+    .catch(({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
       assert.equal(failedCount, 2, 'Should be two failing tests');
@@ -56,6 +56,12 @@ test('exceptions in befores/afters mark tests in group failed', () => {
     });
 });
 
+test('should handle broken tests', () => {
+  return promisedExec('./bin/cli.js', ['test-files/b0rked-test.js'])
+    .catch(({ code, stdout }) => {
+      assert.equal(code, 10);
+    });
+});
 
 feature('file watch', (scenario) => {
   scenario.before(() => {
