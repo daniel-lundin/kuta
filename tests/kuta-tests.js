@@ -147,6 +147,35 @@ kuta.test('should let event loop run in between', () => {
     });
 });
 
+kuta.test('matched inner test should run outer lifecycle hooks', () => {
+  const outerBefore = sinon.stub();
+  const outerBeforeEach = sinon.stub();
+  const test = kuta._createTestGroup();
+
+  test.before(() => {
+    outerBefore();
+  });
+
+  test.beforeEach(() => {
+    outerBeforeEach();
+  });
+
+  test('fii', () => {});
+
+  test.group('group', (t) => {
+    t('matched test', () => {
+      sinon.assert.calledOnce(outerBefore);
+      sinon.assert.calledOnce(outerBeforeEach);
+    });
+  });
+
+  return test._runTests('noop', ['matched test'])
+    .then((res) => {
+      assert.equal(res.groups.length, 1);
+      assert.equal(res.groups[0].results[0].result, common.TEST_SUCCESS);
+    });
+});
+
 feature('timeouts', (scenario) => {
   scenario('timeout long running test', ({ given, when, then }) => {
     let testSuite;
