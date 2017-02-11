@@ -196,21 +196,21 @@ function startWatch(dirs) {
 
   rl.on('line', (input) => {
     if (input === 'r') {
-      triggerNewRun();
+      return triggerNewRun();
     }
 
     if (input.startsWith('m ')) {
       testMatch = [input.slice(2)];
       logger.log('');
       logger.log(colors.bold(`Match set to "${testMatch[0]}"`));
-      printInteractivePrompt();
+      return triggerNewRun();
     }
 
     if (input === 'mc') {
       testMatch = [];
       logger.log('');
       logger.log(colors.bold('Match cleared'));
-      printInteractivePrompt();
+      return triggerNewRun();
     }
 
     if (input === 'x') {
@@ -219,6 +219,16 @@ function startWatch(dirs) {
       logger.log('');
       process.exit(0);
     }
+
+    logger.log(colors.red('Invalid command'));
+    printInteractivePrompt();
+  });
+
+  rl.on('close', () => {
+    logger.log('');
+    logger.log(colors.rainbow('kthxbai!'));
+    logger.log('');
+    process.exit(0);
   });
 }
 
