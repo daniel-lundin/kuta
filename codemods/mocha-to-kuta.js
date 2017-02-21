@@ -1,5 +1,7 @@
+'use strict';
+
 const hooks = ['before', 'after', 'beforeEach', 'afterEach'];
-const cakesKeywords = ['Given', 'When', 'And', 'Then'];
+const cakesKeywords = ['Given', 'When', 'And', 'Then', 'But'];
 
 function toLower(keyword) {
   return keyword[0].toLowerCase() + keyword.slice(1);
@@ -9,7 +11,7 @@ function arrayToLower(keywords) {
   return keywords.map(toLower);
 }
 
-export default function transformer(file, api) {
+module.exports = function transformer(file, api, options) {
   const j = api.jscodeshift;
 
   function scopeFunctions(fn, functions, identifier) {
@@ -33,12 +35,16 @@ export default function transformer(file, api) {
     return j.arrowFunctionExpression(
       [j.identifier('it')],
       scopeFunctions(fn, hooks, 'it').body
-    )
+    );
   }
 
   function createShorthandObject(props) {
     const shorthands = props.map((prop) => {
-      const shorthandProp = j.property('init', j.identifier(prop), j.identifier(prop))
+      const shorthandProp = j.property(
+        'init',
+        j.identifier(prop),
+        j.identifier(prop)
+      );
       shorthandProp.shorthand = true;
       return shorthandProp;
     });
@@ -52,6 +58,34 @@ export default function transformer(file, api) {
       return;
     }
     const body = root.get().value.program.body;
+
+    if (options.cjs) {
+      const requires = [];
+      if (hasFeature) requires.push('feature');
+      if (hasDescribe) requires.push('describe');
+
+      const destruct = requires.map((_require) => {
+        const prop = j.property(
+          'init',
+          j.identifier(_require),
+          j.identifier(_require)
+        );
+        prop.shorthand = true;
+        return prop;
+      });
+      const objectPattern = j.objectPattern(destruct);
+      const bddRequire = j.callExpression(
+        j.identifier('require'),
+        [j.literal('kuta/lib/bdd')]
+      );
+      const kutaRequire = j.variableDeclaration(
+        'const',
+        [j.variableDeclarator(objectPattern, bddRequire)]
+      );
+      body.unshift(kutaRequire);
+      return;
+    }
+
     const importSpecifiers = [];
     if (hasFeature) {
       importSpecifiers.push(j.importSpecifier(j.identifier('feature'), j.identifier('feature')));
@@ -165,4 +199,4 @@ export default function transformer(file, api) {
   return root.toSource({
     arrowParensAlways: true
   });
-}
+};
