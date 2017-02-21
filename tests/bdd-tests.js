@@ -21,3 +21,11 @@ test('should run jasmine-style tests', () => {
     });
 });
 
+test('should run mocha-style tests', () => {
+  const kutaEmitter = kutaAsEmitter(['test-files/mocha-test.js']);
+
+  return kutaEmitter.waitForCompletedRun()
+    .then(() => {
+      assert.equal(kutaEmitter.passes(), 7);
+    });
+});
