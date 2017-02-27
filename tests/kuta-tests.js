@@ -24,6 +24,8 @@ kuta.test('returning rejected promises should fail', () => {
 kuta.test.group('group test', (it) => {
   const outerBeforeEach = sinon.stub();
   const outerAfterEach = sinon.stub();
+  const innerBeforeEach = sinon.stub();
+  const innerAfterEach = sinon.stub();
   const firstBefore = sinon.stub();
   const firstAfter = sinon.stub();
   const secondBefore = sinon.stub();
@@ -34,12 +36,24 @@ kuta.test.group('group test', (it) => {
   it.group('first group', (t) => {
     t.before(firstBefore);
     t.after(firstAfter);
+    t.beforeEach(innerBeforeEach);
+    t.afterEach(innerAfterEach);
+
     t('first group tests', () => {
     });
   });
 
   it.group('second group', (t) => {
     t.before(secondBefore);
+
+    t('*eaches should run in correct order', () => {
+      sinon.assert.callOrder(
+        outerBeforeEach,
+        innerBeforeEach,
+        innerAfterEach,
+        outerAfterEach
+      );
+    });
 
     t('after from previous group should have been called before', () => {
       sinon.assert.callOrder(
@@ -52,8 +66,8 @@ kuta.test.group('group test', (it) => {
       );
     });
 
-    t('beforeEach in outer group should run beforeEach tset in inner', () => {
-      sinon.assert.callCount(outerBeforeEach, 3);
+    t('beforeEach in outer group should run beforeEach test in inner', () => {
+      sinon.assert.callCount(outerBeforeEach, 4);
     });
   });
 });
@@ -128,22 +142,23 @@ kuta.test('handle exception in callback-style test', () => {
 });
 
 kuta.test('should let event loop run in between', () => {
-  const timeoutCall = sinon.stub();
+  const immediateCall = sinon.stub();
   const test = kuta._createTestGroup();
 
   test('callback exception', () => {
-    setTimeout(() => {
-      timeoutCall();
-    }, 0);
+    setImmediate(() => {
+      immediateCall();
+    });
   });
 
   test('timeout should have fired', () => {
-    sinon.assert.calledOnce(timeoutCall);
+    sinon.assert.calledOnce(immediateCall);
   });
 
   return test._runTests('a testfile', [])
     .then((res) => {
       assert.equal(res.results[0].result, common.TEST_SUCCESS);
+      assert.equal(res.results[1].result, common.TEST_SUCCESS);
     });
 });
 
