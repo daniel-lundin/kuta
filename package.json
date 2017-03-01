@@ -17,6 +17,10 @@
     ],
     "processes": 4
   },
+  "pre-commit": [
+    "test",
+    "lint"
+  ],
   "author": "",
   "license": "MIT",
   "bin": {
@@ -36,6 +40,7 @@
     "chai": "^3.5.0",
     "eslint": "^3.12.0",
     "nyc": "^10.0.0",
+    "pre-commit": "^1.2.2",
     "sinon": "^1.17.6"
   }
 }
