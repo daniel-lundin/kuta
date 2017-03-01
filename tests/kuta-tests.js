@@ -191,24 +191,24 @@ kuta.test('matched inner test should run outer lifecycle hooks', () => {
     });
 });
 
-// kuta.test('should not run befores/afters for tests that don\'t match', () => {
-//   const test = kuta._createTestGroup();
-//   const before = sinon.stub();
-//   const after = sinon.stub();
-// 
-//   test.before(before);
-//   test.after(after);
-// 
-//   test.group('group', (t) => {
-//     t('random', () => {});
-//   });
-// 
-//   return test._runTests('nofile', ['matching'])
-//     .then(() => {
-//       sinon.assert.notCalled(before);
-//       sinon.assert.notCalled(after);
-//     });
-// });
+kuta.test('should not run befores/afters for tests that don\'t match', () => {
+  const test = kuta._createTestGroup();
+  const before = sinon.stub();
+  const after = sinon.stub();
+
+  test.before(before);
+  test.after(after);
+
+  test.group('group', (t) => {
+    t('random', () => {});
+  });
+
+  return test._runTests('nofile', ['matching'])
+    .then(() => {
+      sinon.assert.notCalled(before);
+      sinon.assert.notCalled(after);
+    });
+});
 
 feature('timeouts', (scenario) => {
   scenario('timeout long running test', ({ given, when, then }) => {
