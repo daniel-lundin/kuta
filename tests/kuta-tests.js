@@ -175,7 +175,7 @@ kuta.test('matched inner test should run outer lifecycle hooks', () => {
     outerBeforeEach();
   });
 
-  test('fii', () => {});
+  test('foo', () => {});
 
   test.group('group', (t) => {
     t('matched test', () => {
@@ -189,6 +189,37 @@ kuta.test('matched inner test should run outer lifecycle hooks', () => {
       assert.equal(res.groups.length, 1);
       assert.equal(res.groups[0].results[0].result, common.TEST_SUCCESS);
     });
+});
+
+kuta.test.group('exception in hooks', (test) => {
+  const testGroup = kuta._createTestGroup();
+
+  testGroup.group('this is a group', (t) => {
+    t.after(() => {
+      throw new Error('FAIL!!1');
+    });
+
+    t('a passing test', () => {});
+    t('a skipped test', () => {});
+  });
+
+  test('should mark all test in group failed', () => {
+    return testGroup._runTests('noop', [])
+      .then((res) => {
+        const { results } = res.groups[0];
+        assert.equal(results[0].result, common.TEST_FAILURE);
+        assert.equal(results[1].result, common.TEST_FAILURE);
+      });
+  });
+
+  test('except for already skipped tests', () => {
+    return testGroup._runTests('noop', ['passing test'])
+      .then((res) => {
+        const { results } = res.groups[0];
+        assert.equal(results[0].result, common.TEST_FAILURE);
+        assert.equal(results[1].result, common.TEST_SKIPPED);
+      });
+  });
 });
 
 kuta.test('should not run befores/afters for tests that don\'t match', () => {
