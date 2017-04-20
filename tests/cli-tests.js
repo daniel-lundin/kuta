@@ -194,7 +194,7 @@ feature('test matching', (scenario) => {
     });
 
     given('a kuta process with match flag', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', 'a simple']);
+      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', '*simple test*']);
     });
 
     when('kuta process completed', () => {
@@ -202,7 +202,7 @@ feature('test matching', (scenario) => {
     });
 
     then('two tests should have run', () => {
-      assert.equal(kutaProcessEmitter.passes(), 2);
+      assert.equal(kutaProcessEmitter.passes(), 4);
       assert.equal(kutaProcessEmitter.failures(), 0);
     });
   });
@@ -215,7 +215,7 @@ feature('test matching', (scenario) => {
     });
 
     given('a kuta process with match flag', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', 'simple']);
+      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', '*simple*']);
     });
 
     when('kuta process completed', () => {

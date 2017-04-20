@@ -15,7 +15,8 @@
     "files": [
       "tests/*-tests.js"
     ],
-    "processes": 4
+    "processes": 4,
+    "reporter": "spec"
   },
   "pre-commit": [
     "test",
@@ -34,6 +35,7 @@
     "cli-cursor": "^2.1.0",
     "colors": "^1.1.2",
     "glob": "^7.1.1",
+    "matcher": "^0.1.2",
     "minimist": "^1.2.0"
   },
   "devDependencies": {

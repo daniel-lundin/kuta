@@ -213,7 +213,7 @@ kuta.test.group('exception in hooks', (test) => {
   });
 
   test('except for already skipped tests', () => {
-    return testGroup._runTests('noop', ['passing test'])
+    return testGroup._runTests('noop', ['*passing test*'])
       .then((res) => {
         const { results } = res.groups[0];
         assert.equal(results[0].result, common.TEST_FAILURE);

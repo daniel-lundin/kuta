@@ -8,7 +8,7 @@ Experimental parallel test runner for node (very much WIP)
 
 # Design goals
 
-- Fast execution times by running test files in parallel
+- Fast execution times by running tests in parallel
 - Agnostic towards assertion libraries, as long as exceptions are thrown.
 - Small API, few features, little configuration
 
@@ -18,8 +18,11 @@ Experimental parallel test runner for node (very much WIP)
 
 # Trade-offs
 
-Since test files are read one by one, there is no easy way to get a holistic view of the test suite. Specifically: it will be hard to support TAP output and running only one specific test(with .only e.g.)
-Processes are recycled which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
+Since test files are executed one by one, there is no step that scans all files before the runner starts.
+
+ - No TAP support
+ - no support for adding mocha-style .only on tests(see matching instead)
+ - Processes are reused which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
 
 # Usage
 
@@ -56,6 +59,20 @@ test('it should work', () => {
       assert(response.ok);
     });
 });
+
+//  Grouped tests
+test.group('a group', (t) => {
+  t.before(() => {
+    // Will run before tests in group
+  });
+
+  t.after(() => {
+    // Will run after tests in group
+  });
+
+  t('a test in this group', () => {});
+});
+
 ```
 
 ## Running tests
@@ -63,7 +80,7 @@ test('it should work', () => {
 Tests are run with the kuta command:
 
 ```
-  Usage: kuta [options] testfiles');
+  Usage: kuta [options] testfiles
 
   Options:
    -r, --require            Files to require before running tests
@@ -78,6 +95,11 @@ Example:
 
 `kuta tests/**/*.js`
 
+## Test matching
+
+By using the `--match` option, kuta will only run test that match the string provided. If a group is matched, all its tests will run as well. If a single test within a group is matched, all lifecycle hooks in outer groups will run as well.
+
+## Configuration
 
 Kuta looks for a `kuta`-section in package.json where options can be defined. CLI arguments take precendence over package.json config.
 
@@ -101,6 +123,44 @@ Example package.json:
 If you transpile with babel, use the babel-register hook:
 
 `kuta tests/**/*.js --require babel-register`
+
+# Mocha compatibility
+
+```js
+
+import { describe, it } from 'kuta/lib/mocha-compat';
+
+describe('mocha style', () => {
+  before(() => {});
+  after(() => {});
+
+  it('should work', () => {
+    describe('inner group', () => {
+    });
+  });
+});
+```
+
+## Mocha cakes
+
+```js
+
+import { Feature, Scenario, Given, When, Then, But } from 'kuta/lib/mocha-compat';
+
+Feature('Feature', () => {
+  Scenario('', () => {
+    Given('a given', () => {});
+
+    When('something happens', () => {});
+
+    Then('something is expected', () => {});
+
+    And('another thing should be expectedgiven', () => {});
+
+    But('not this thing', () => {});
+  });
+});
+```
 
 # Extras
 
@@ -128,7 +188,6 @@ feature('a feature', (scenario) => {
 ```
 
 Also included is a Jasmine-like DSL:
-
 
 ```js
 
