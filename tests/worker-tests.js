@@ -54,3 +54,17 @@ test('should reuse process if test files are greater than processes', () => {
       assert.equal(childProcess.fork.callCount, 1, 'Should spawn one processes');
     });
 });
+
+test('should send environment varible with process index', () => {
+  const processCount = 2;
+  const files = [
+    'test-files/pass-if-process-index-1.js',
+    'test-files/pass-if-process-index-1.js'
+  ];
+  return runner.run(files, match, requires, processCount, reporter, timeout, dummyLogger)
+    .then((results) => {
+      assert.equal(results.successes, 1, 'should be one passing test');
+      assert.equal(results.errors, 1, 'should be one failing test');
+    });
+
+});
