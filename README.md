@@ -124,6 +124,12 @@ If you transpile with babel, use the babel-register hook:
 
 `kuta tests/**/*.js --require babel-register`
 
+## Parallel processes
+
+Since processes are run in parallel, test that spawn servers on specific port will run into problems where one test process has already a port to be used by another test. To overcome this, kuta sends a environment variable with an index to each of the process that can be used to generate unique ports for different processes.
+
+The environment variable is `KUTA_PROCESS_INDEX`
+
 # Mocha compatibility
 
 ```js
@@ -155,7 +161,7 @@ Feature('Feature', () => {
 
     Then('something is expected', () => {});
 
-    And('another thing should be expectedgiven', () => {});
+    And('another thing should be expected', () => {});
 
     But('not this thing', () => {});
   });
