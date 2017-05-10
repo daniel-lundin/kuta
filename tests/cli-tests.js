@@ -185,66 +185,24 @@ feature('file watch', (scenario) => {
   });
 });
 
-feature('test matching', (scenario) => {
-  scenario('only run matching tests', ({ after, given, when, then }) => {
+feature('only running', (scenario) => {
+  scenario('run tests in groups that have only', ({ after, given, when, then }) => {
     let kutaProcessEmitter;
 
     after(() => {
       kutaProcessEmitter && kutaProcessEmitter.kill();
     });
 
-    given('a kuta process with match flag', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', '*simple test*']);
+    given('a kuta process', () => {
+      kutaProcessEmitter = kutaAsEmitter(['test-files/file-with-onlys.js']);
     });
 
     when('kuta process completed', () => {
       return kutaProcessEmitter.waitForCompletedRun();
     });
 
-    then('two tests should have run', () => {
-      assert.equal(kutaProcessEmitter.passes(), 4);
-      assert.equal(kutaProcessEmitter.failures(), 0);
-    });
-  });
-
-  scenario('run tests in groups that match', ({ after, given, when, then }) => {
-    let kutaProcessEmitter;
-
-    after(() => {
-      kutaProcessEmitter && kutaProcessEmitter.kill();
-    });
-
-    given('a kuta process with match flag', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/*passing-tests*', '-m', '*simple*']);
-    });
-
-    when('kuta process completed', () => {
-      return kutaProcessEmitter.waitForCompletedRun();
-    });
-
-    then('six tests should have run', () => {
-      assert.equal(kutaProcessEmitter.passes(), 6);
-      assert.equal(kutaProcessEmitter.failures(), 0);
-    });
-  });
-
-  scenario('run nested matching test in group that does not match', ({ after, given, when, then }) => {
-    let kutaProcessEmitter;
-
-    after(() => {
-      kutaProcessEmitter && kutaProcessEmitter.kill();
-    });
-
-    given('a kuta process with match flag', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/jasmine-dsl.js', '-m', 'nested simple test']);
-    });
-
-    when('kuta process completed', () => {
-      return kutaProcessEmitter.waitForCompletedRun();
-    });
-
-    then('one test should have run', () => {
-      assert.equal(kutaProcessEmitter.passes(), 1);
+    then('five tests should have run', () => {
+      assert.equal(kutaProcessEmitter.passes(), 5);
       assert.equal(kutaProcessEmitter.failures(), 0);
     });
   });

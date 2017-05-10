@@ -5,7 +5,6 @@ const minimist = require('minimist');
 const colors = require('colors');
 const glob = require('glob');
 const fs = require('fs');
-const readline = require('readline');
 
 const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
@@ -26,7 +25,6 @@ function readFromConfig() {
           requires: [],
           files: [],
           watch: '',
-          match: [],
           reporter: 'spec'
         });
       }
@@ -38,7 +36,6 @@ function readFromConfig() {
         files: kutaConfig.files || [],
         timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
         watch: kutaConfig.watch || '',
-        match: kutaConfig.match || [],
         reporter: kutaConfig.reporter || 'spec'
       });
     });
@@ -56,7 +53,6 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log('  -p, --processes\t\tNumber of processes in the process pool');
   logger.log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
   logger.log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
-  logger.log('  -m, --match\t\t\tRun only test that match this string');
   logger.log('  -h, --help \t\t\tPrint this help');
   logger.log('');
   process.exit(exitCode);
@@ -64,12 +60,7 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
 
 function printInteractivePrompt() {
   logger.log('');
-  logger.log('Commands:');
-  logger.log('r - re-run tests');
-  logger.log('m - enter a match string');
-  logger.log('mc - clear match string');
-  logger.log('x - exit');
-  logger.logNoNL('> ');
+  logger.log('Waiting for file changes...');
 }
 
 function promiseGlob(globPattern) {
@@ -81,7 +72,7 @@ function promiseGlob(globPattern) {
   });
 }
 
-function startTests(watchMode, testMatch = null) {
+function startTests(watchMode) {
   return readFromConfig()
     .then((config) => {
       const args = minimist(process.argv.slice(2));
@@ -90,7 +81,6 @@ function startTests(watchMode, testMatch = null) {
       }
 
       const requires = utils.arrayParam(args.require, args.r);
-      const match = utils.arrayParam(args.match, args.m);
       const processes = parseInt(args.processes || args.p, 10);
       const timeout = args.timeout || args.t;
       const reporter = args.reporter;
@@ -101,9 +91,13 @@ function startTests(watchMode, testMatch = null) {
         .reduce((acc, curr) => acc.concat(curr), []);
       return Promise.all(filePromises)
         .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
-        .then((files) => ({
+        .then((files) =>
+          utils.scanForOnlys(files)
+            .then((onlyTitles) => ({ files, onlyTitles }))
+        )
+        .then(({ files, onlyTitles }) => ({
           requires: requires.length ? requires : config.requires,
-          match: testMatch ? testMatch : match.length ? match : config.match,
+          match: onlyTitles,
           processes: processes || config.processes,
           timeout: timeout ? timeout : config.timeout,
           reporter: reporter || config.reporter,
@@ -111,8 +105,7 @@ function startTests(watchMode, testMatch = null) {
         }));
     })
     .then(({ files, match, requires, processes, reporter, timeout }) => {
-      const matchInfo = match.length ? ` with match "${match[0]}"` : '';
-      logger.log(`Running ${files.length} test file(s) in ${processes} processes${matchInfo}...\n`);
+      logger.log(`Running ${files.length} test file(s) in ${processes} processes...\n`);
       return runner.run(files, match, requires, processes, reporter, timeout, logger);
     })
     .then((results) => {
@@ -140,16 +133,16 @@ function clearScreen() {
 let testInProgress = false;
 let startNewRun = false;
 
-function runTests(watchMode, testMatch) {
+function runTests(watchMode) {
   testInProgress = true;
   // TODO: Move startTest to seperate file for easier stubbing than this
-  module.exports.startTests(watchMode, testMatch).then(() => {
+  module.exports.startTests(watchMode).then(() => {
     testInProgress = false;
     if (startNewRun) {
       testInProgress = true;
       startNewRun = false;
       module.exports.clearScreen();
-      return runTests(watchMode, testMatch);
+      return runTests(watchMode);
     }
 
     if (watchMode) {
@@ -159,8 +152,6 @@ function runTests(watchMode, testMatch) {
 }
 
 function startWatch(dirs) {
-  let testMatch = [];
-
   function debounce(fn, delay) {
     let timer = null;
     return function() {
@@ -172,7 +163,7 @@ function startWatch(dirs) {
   function _triggerNewRun() {
     if (!testInProgress) {
       module.exports.clearScreen();
-      runTests(true, testMatch);
+      runTests(true);
     } else {
       startNewRun = true;
     }
@@ -187,48 +178,6 @@ function startWatch(dirs) {
     fs.watch(dir, watchOpts, () => {
       triggerNewRun();
     });
-  });
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  rl.on('line', (input) => {
-    if (input === 'r') {
-      return triggerNewRun();
-    }
-
-    if (input.startsWith('m ')) {
-      testMatch = [input.slice(2)];
-      logger.log('');
-      logger.log(colors.bold(`Match set to "${testMatch[0]}"`));
-      return triggerNewRun();
-    }
-
-    if (input === 'mc') {
-      testMatch = [];
-      logger.log('');
-      logger.log(colors.bold('Match cleared'));
-      return triggerNewRun();
-    }
-
-    if (input === 'x') {
-      logger.log('');
-      logger.log(colors.rainbow('kthxbai!'));
-      logger.log('');
-      process.exit(0);
-    }
-
-    logger.log(colors.red('Invalid command'));
-    printInteractivePrompt();
-  });
-
-  rl.on('close', () => {
-    logger.log('');
-    logger.log(colors.rainbow('kthxbai!'));
-    logger.log('');
-    process.exit(0);
   });
 }
 

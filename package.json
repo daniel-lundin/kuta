@@ -36,7 +36,8 @@
     "colors": "^1.1.2",
     "glob": "^7.1.1",
     "matcher": "^0.1.2",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "qfgets": "^1.1.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
