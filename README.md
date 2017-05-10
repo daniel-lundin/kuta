@@ -21,7 +21,6 @@ Experimental parallel test runner for node (very much WIP)
 Since test files are executed one by one, there is no step that scans all files before the runner starts.
 
  - No TAP support
- - no support for adding mocha-style .only on tests(see matching instead)
  - Processes are reused which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
 
 # Usage
@@ -86,7 +85,6 @@ Tests are run with the kuta command:
    -r, --require            Files to require before running tests
    -p, --processes          Number of processes in the process pool
    -t, --timeout            Number of milliseconds before tests timeout
-   -m, --match              Run only test that match this string
    -w, --watch [dir1,dir2]  Directories to watch for changes and re-run tests
 ```
 
@@ -94,10 +92,6 @@ Tests are run with the kuta command:
 Example:
 
 `kuta tests/**/*.js`
-
-## Test matching
-
-By using the `--match` option, kuta will only run test that match the string provided. If a group is matched, all its tests will run as well. If a single test within a group is matched, all lifecycle hooks in outer groups will run as well.
 
 ## Configuration
 
