@@ -18,9 +18,7 @@ Experimental parallel test runner for node (very much WIP)
 
 # Trade-offs
 
-Since test files are executed one by one, there is no step that scans all files before the runner starts.
-
- - No TAP support
+ - No TAP support(files are run one by one, so total number of tests are unknown)
  - Processes are reused which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
 
 # Usage
@@ -85,6 +83,7 @@ Tests are run with the kuta command:
    -r, --require            Files to require before running tests
    -p, --processes          Number of processes in the process pool
    -t, --timeout            Number of milliseconds before tests timeout
+       --reporter           progress or spec(default)
    -w, --watch [dir1,dir2]  Directories to watch for changes and re-run tests
 ```
 
@@ -120,11 +119,13 @@ If you transpile with babel, use the babel-register hook:
 
 ## Parallel processes
 
-Since processes are run in parallel, test that spawn servers on specific port will run into problems where one test process has already a port to be used by another test. To overcome this, kuta sends a environment variable with an index to each of the process that can be used to generate unique ports for different processes.
+Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the process that can be used to generate unique ports for different processes.
 
 The environment variable is `KUTA_PROCESS_INDEX`
 
 # Mocha compatibility
+
+Kuta includes a mocha and mocha-cakes compatability layer:
 
 ```js
 
