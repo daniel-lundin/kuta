@@ -17,7 +17,7 @@ const testObject = {
   method() {}
 };
 
-describe('outer describe', () => {
+describe.only('outer describe', () => {
   before(() => {
     sinon.stub(testObject, 'method');
   });
@@ -26,7 +26,7 @@ describe('outer describe', () => {
     testObject.method.restore();
   });
 
-  it('outer test', () => {
+  it.only('outer test', () => {
     testObject.method();
   });
 
@@ -47,7 +47,7 @@ describe('outer describe', () => {
   });
 });
 
-Feature('this is a feature', () => {
+Feature.only('this is a feature', () => {
   Scenario('a scenario', () => {
     Given('something', () => {
     });
@@ -55,6 +55,19 @@ Feature('this is a feature', () => {
     When('something', () => {
     });
 
+    Then('something', () => {
+    });
+  });
+});
+
+Feature('feature', () => {
+  Scenario('skipped', () => {
+    Given('something', () => {
+      throw new Error('should not run');
+    });
+  });
+
+  Scenario.only('should run', () => {
     Then('something', () => {
     });
   });

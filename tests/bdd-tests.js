@@ -26,6 +26,7 @@ test('should run mocha-style tests', () => {
 
   return kutaEmitter.waitForCompletedRun()
     .then(() => {
-      assert.equal(kutaEmitter.passes(), 7);
+      assert.equal(kutaEmitter.passes(), 8);
+      assert.equal(kutaEmitter.failures(), 0);
     });
 });
