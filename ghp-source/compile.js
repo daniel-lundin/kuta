@@ -13,7 +13,6 @@ function dasherize(str) {
 }
 
 function extractTOC(parsedMD) {
-  console.log(parsedMD);
   const headings = parsedMD
     .filter(block => block.type === 'heading')
     .filter(block => block.depth !== 1);
@@ -56,6 +55,5 @@ const template = fs.readFileSync(TEMPLATE_PATH);
 
 const READMEContent = markdownToHTML(README_PATH).toString();
 const content = addContentToTemplate(template.toString(), READMEContent);
-// console.log(content);
 
 fs.writeFileSync(OUTPUT_PATH, content);
