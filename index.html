@@ -11,17 +11,14 @@
   </head>
   <body>
     <main>
-<h1 id="kuta">kuta</h1><p><a href="https://travis-ci.org/daniel-lundin/kuta"><img src="https://travis-ci.org/daniel-lundin/kuta.svg?branch=master" alt="Build Status"></a>
-<a href="https://codeclimate.com/github/daniel-lundin/kuta"><img src="https://codeclimate.com/github/daniel-lundin/kuta/badges/gpa.svg" alt="Code Climate"></a></p>
-<p>Experimental parallel test runner for node (very much WIP)</p>
+<h1 id="kuta">kuta</h1><p><a href="https://travis-ci.org/daniel-lundin/kuta"><img src="https://travis-ci.org/daniel-lundin/kuta.svg?branch=master" alt="Build Status"></a></p>
+<p>Experimental parallel test runner for node</p>
 <p><code>npm install kuta</code></p>
-<ul><li><a href=#design-goals>Design goals</a></li><li><a href=#implementation-details>Implementation details</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#extras>Extras</a></li></ul><h2 id="design-goals">Design goals</h2><ul>
+<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#extras>Extras</a></li></ul><h2 id="introduction">Introduction</h2><p>Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as a process is done running a test file it will be given a new one.</p>
+<h2 id="design-goals">Design goals</h2><ul>
 <li>Fast execution times by running tests in parallel</li>
-<li>Agnostic towards assertion libraries, as long as exceptions are thrown.</li>
+<li>Agnostic towards assertion libraries, as long as exceptions are thrown or promises returned.</li>
 <li>Small API, few features, little configuration</li>
-</ul>
-<h2 id="implementation-details">Implementation details</h2><ul>
-<li>Run each test file in it&#39;s own process, but recycle processes through a process pool.</li>
 </ul>
 <h2 id="trade-offs">Trade-offs</h2><ul>
 <li>No TAP support(files are run one by one, so total number of tests are unknown)</li>
