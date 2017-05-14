@@ -1,20 +1,19 @@
 # kuta
 [![Build Status](https://travis-ci.org/daniel-lundin/kuta.svg?branch=master)](https://travis-ci.org/daniel-lundin/kuta)
-[![Code Climate](https://codeclimate.com/github/daniel-lundin/kuta/badges/gpa.svg)](https://codeclimate.com/github/daniel-lundin/kuta)
 
-Experimental parallel test runner for node (very much WIP)
+Experimental parallel test runner for node
 
 `npm install kuta`
+
+## Introduction
+
+Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as a process is done running a test file it will be given a new one.
 
 ## Design goals
 
 - Fast execution times by running tests in parallel
-- Agnostic towards assertion libraries, as long as exceptions are thrown.
+- Agnostic towards assertion libraries, as long as exceptions are thrown or promises returned.
 - Small API, few features, little configuration
-
-## Implementation details
-
-- Run each test file in it's own process, but recycle processes through a process pool.
 
 ## Trade-offs
 
