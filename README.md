@@ -6,24 +6,24 @@ Experimental parallel test runner for node (very much WIP)
 
 `npm install kuta`
 
-# Design goals
+## Design goals
 
 - Fast execution times by running tests in parallel
 - Agnostic towards assertion libraries, as long as exceptions are thrown.
 - Small API, few features, little configuration
 
-# Implementation details
+## Implementation details
 
 - Run each test file in it's own process, but recycle processes through a process pool.
 
-# Trade-offs
+## Trade-offs
 
  - No TAP support(files are run one by one, so total number of tests are unknown)
  - Processes are reused which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
 
-# Usage
+## Usage
 
-## Writing tests
+### Writing tests
 
 ```js
 import { test } from 'kuta';
@@ -72,7 +72,7 @@ test.group('a group', (t) => {
 
 ```
 
-## Running tests
+### Running tests
 
 Tests are run with the kuta command:
 
@@ -92,7 +92,7 @@ Example:
 
 `kuta tests/**/*.js`
 
-## Configuration
+### Configuration
 
 Kuta looks for a `kuta`-section in package.json where options can be defined. CLI arguments take precendence over package.json config.
 
@@ -111,19 +111,19 @@ Example package.json:
 }
 ```
 
-## Babel
+### Babel
 
 If you transpile with babel, use the babel-register hook:
 
 `kuta tests/**/*.js --require babel-register`
 
-## Parallel processes
+### Parallel processes
 
 Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the process that can be used to generate unique ports for different processes.
 
 The environment variable is `KUTA_PROCESS_INDEX`
 
-# Mocha compatibility
+## Mocha compatibility
 
 Kuta includes a mocha and mocha-cakes compatability layer:
 
@@ -142,7 +142,7 @@ describe('mocha style', () => {
 });
 ```
 
-## Mocha cakes
+### Mocha cakes
 
 ```js
 
@@ -163,7 +163,7 @@ Feature('Feature', () => {
 });
 ```
 
-# Extras
+## Extras
 
 BDD syntax add-on for writing test in given-when-then style:
 
