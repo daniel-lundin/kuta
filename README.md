@@ -1,5 +1,6 @@
 # kuta
 [![Build Status](https://travis-ci.org/daniel-lundin/kuta.svg?branch=master)](https://travis-ci.org/daniel-lundin/kuta)
+[![npm version](https://badge.fury.io/js/kuta.svg)](https://badge.fury.io/js/kuta)
 
 Experimental parallel test runner for node
 
@@ -209,3 +210,7 @@ describe('outer describe', (it) => {
   });
 });
 ```
+
+## Licence
+
+MIT Copyright Daniel Lundin
