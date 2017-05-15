@@ -1,6 +1,6 @@
 {
   "name": "kuta",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "kuta": {
