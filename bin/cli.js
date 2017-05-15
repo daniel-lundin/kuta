@@ -85,7 +85,6 @@ function startTests(watchMode) {
       const timeout = args.timeout || args.t;
       const reporter = args.reporter;
       const files = args._;
-
       const filePromises = (files.length ? files : config.files)
         .map(promiseGlob)
         .reduce((acc, curr) => acc.concat(curr), []);
@@ -93,16 +92,19 @@ function startTests(watchMode) {
         .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
         .then((files) =>
           utils.scanForOnlys(files)
-            .then((onlyTitles) => ({ files, onlyTitles }))
+            .then((onlyMatches) => ({ files, onlyMatches }))
         )
-        .then(({ files, onlyTitles }) => ({
-          requires: requires.length ? requires : config.requires,
-          match: onlyTitles,
-          processes: processes || config.processes,
-          timeout: timeout ? timeout : config.timeout,
-          reporter: reporter || config.reporter,
-          files
-        }));
+        .then(({ files, onlyMatches }) => {
+          const filteredFiles = files.filter((file) => Object.keys(onlyMatches).includes(file));
+          return {
+            requires: requires.length ? requires : config.requires,
+            match: onlyMatches,
+            processes: processes || config.processes,
+            timeout: timeout ? timeout : config.timeout,
+            reporter: reporter || config.reporter,
+            files: Object.keys(onlyMatches).length ? filteredFiles : files
+          };
+        });
     })
     .then(({ files, match, requires, processes, reporter, timeout }) => {
       logger.log(`Running ${files.length} test file(s) in ${processes} processes...\n`);
@@ -121,8 +123,8 @@ function startTests(watchMode) {
       return results;
     })
     .catch((err) => {
-      process.exit(EXIT_CODE_FAILURES);
       logger.log('Something went wrong', err);
+      process.exit(EXIT_CODE_FAILURES);
     });
 }
 
