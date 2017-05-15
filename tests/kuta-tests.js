@@ -104,24 +104,29 @@ kuta.test('complete test by callback', () => {
   const testStub = sinon.stub();
   const beforeStub = sinon.stub();
 
-  test.before((resolve) => {
+  test.before((done) => {
     setTimeout(() => {
       beforeStub();
-      resolve();
+      done();
     }, 200);
   });
 
-  test('a test', (resolve) => {
+  test('a test', (done) => {
     setTimeout(() => {
       testStub();
-      resolve();
+      done();
     }, 200);
+  });
+
+  test('fail by callback', (done) => {
+    done('error');
   });
 
   return test._runTests('a testfile', [])
-    .then(() => {
+    .then((results) => {
       sinon.assert.calledOnce(beforeStub);
       sinon.assert.calledOnce(testStub);
+      assert.equal(results.results[1].result, 'TEST_FAILURE');
     });
 });
 
