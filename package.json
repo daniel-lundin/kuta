@@ -11,7 +11,7 @@
       "tests/*-tests.js"
     ],
     "processes": 4,
-    "reporter": "spec"
+    "reporter": "progress"
   },
   "pre-commit": [
     "test",
