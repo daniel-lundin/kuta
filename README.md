@@ -70,6 +70,24 @@ test.group('a group', (t) => {
   t('a test in this group', () => {});
 });
 
+
+// Only running some tests
+test.only('will only run this test', () => {
+});
+
+test.only('and this since it also has only', () => {
+});
+
+
+// Skipped tests
+test.skip('this will not run', () => {
+});
+
+test.group.skip('nor will this group', (t) => {
+  t('or any tests withing it', () => {
+  });
+});
+
 ```
 
 ### Running tests
