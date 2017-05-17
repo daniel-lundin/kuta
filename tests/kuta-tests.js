@@ -273,3 +273,23 @@ feature('timeouts', (scenario) => {
     });
   });
 });
+
+kuta.test('should skip .skip()', () => {
+  const test = kuta._createTestGroup();
+
+
+  test('not skipped', () => {
+  });
+
+  test.skip('skipped', () => {
+  });
+
+  test.group.skip('skipped', (t) => {
+    t('also skipped', () => {});
+  });
+
+  return test._runTests('nofile', [])
+    .then((results) => {
+      assert.equal(results.results.length, 1);
+    });
+});
