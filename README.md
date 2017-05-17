@@ -163,54 +163,6 @@ Feature('Feature', () => {
 });
 ```
 
-## Extras
-
-BDD syntax add-on for writing test in given-when-then style:
-
-```js
-
-import { feature } from 'kuta/lib/bdd';
-
-feature('a feature', (scenario) => {
-  scenario('a scenario', ({ given, when, then }) => {
-    given('something given', () => {
-      // Some setup
-    });
-
-    when('something happens', () => {
-     // Some acting
-    });
-
-    then('something is expected', () => {
-     // Some expecting
-    });
-  });
-});
-```
-
-Also included is a Jasmine-like DSL:
-
-```js
-
-import { describe } from 'kuta/lib/bdd';
-
-describe('outer describe', (it) => {
-  it.before(() => {
-    // Will run before all inner describes
-  });
-
-  it.after(() => {
-    // Will run after all inner describes
-  });
-
-  it.describe('inner describe', (it) => {
-    it('some test', () => {
-      // test setup
-    });
-  });
-});
-```
-
 ## Licence
 
 MIT Copyright Daniel Lundin
