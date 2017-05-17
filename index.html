@@ -16,7 +16,7 @@
 <a href="https://badge.fury.io/js/kuta"><img src="https://badge.fury.io/js/kuta.svg" alt="npm version"></a></p>
 <p>Experimental parallel test runner for node</p>
 <p><code>npm install kuta</code></p>
-<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#extras>Extras</a></li><li><a href=#licence>Licence</a></li></ul><h2 id="introduction">Introduction</h2><p>Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as a process is done running a test file it will be given a new one.</p>
+<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#licence>Licence</a></li></ul><h2 id="introduction">Introduction</h2><p>Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.</p>
 <h2 id="design-goals">Design goals</h2><ul>
 <li>Fast execution times by running tests in parallel</li>
 <li>Agnostic towards assertion libraries, as long as exceptions are thrown or promises returned.</li>
@@ -70,7 +70,7 @@ test.group(&#39;a group&#39;, (t) =&gt; {
   t(&#39;a test in this group&#39;, () =&gt; {});
 });
 </code></pre>
-<h3 id="running-tests">Running tests</h3><p>Tests are run with the kuta command:</p>
+<h3 id="running-tests">Running tests</h3><p>Tests are run with the <code>kuta</code> command:</p>
 <pre><code>  Usage: kuta [options] testfiles
 
   Options:
@@ -96,7 +96,7 @@ test.group(&#39;a group&#39;, (t) =&gt; {
 </code></pre>
 <h3 id="babel">Babel</h3><p>If you transpile with babel, use the babel-register hook:</p>
 <p><code>kuta tests/**/*.js --require babel-register</code></p>
-<h3 id="parallel-processes">Parallel processes</h3><p>Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the process that can be used to generate unique ports for different processes.</p>
+<h3 id="parallel-processes">Parallel processes</h3><p>Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the processs that can be used to generate unique ports for different processes.</p>
 <p>The environment variable is <code>KUTA_PROCESS_INDEX</code></p>
 <h2 id="mocha-compatibility">Mocha compatibility</h2><p>Kuta includes a mocha and mocha-cakes compatability layer:</p>
 <pre><code class="lang-js">
@@ -126,46 +126,6 @@ Feature(&#39;Feature&#39;, () =&gt; {
     And(&#39;another thing should be expected&#39;, () =&gt; {});
 
     But(&#39;not this thing&#39;, () =&gt; {});
-  });
-});
-</code></pre>
-<h2 id="extras">Extras</h2><p>BDD syntax add-on for writing test in given-when-then style:</p>
-<pre><code class="lang-js">
-import { feature } from &#39;kuta/lib/bdd&#39;;
-
-feature(&#39;a feature&#39;, (scenario) =&gt; {
-  scenario(&#39;a scenario&#39;, ({ given, when, then }) =&gt; {
-    given(&#39;something given&#39;, () =&gt; {
-      // Some setup
-    });
-
-    when(&#39;something happens&#39;, () =&gt; {
-     // Some acting
-    });
-
-    then(&#39;something is expected&#39;, () =&gt; {
-     // Some expecting
-    });
-  });
-});
-</code></pre>
-<p>Also included is a Jasmine-like DSL:</p>
-<pre><code class="lang-js">
-import { describe } from &#39;kuta/lib/bdd&#39;;
-
-describe(&#39;outer describe&#39;, (it) =&gt; {
-  it.before(() =&gt; {
-    // Will run before all inner describes
-  });
-
-  it.after(() =&gt; {
-    // Will run after all inner describes
-  });
-
-  it.describe(&#39;inner describe&#39;, (it) =&gt; {
-    it(&#39;some test&#39;, () =&gt; {
-      // test setup
-    });
   });
 });
 </code></pre>
