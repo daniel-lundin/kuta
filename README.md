@@ -8,7 +8,7 @@ Experimental parallel test runner for node
 
 ## Introduction
 
-Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as a process is done running a test file it will be given a new one.
+Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.
 
 ## Design goals
 
@@ -74,7 +74,7 @@ test.group('a group', (t) => {
 
 ### Running tests
 
-Tests are run with the kuta command:
+Tests are run with the `kuta` command:
 
 ```
   Usage: kuta [options] testfiles
@@ -119,7 +119,7 @@ If you transpile with babel, use the babel-register hook:
 
 ### Parallel processes
 
-Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the process that can be used to generate unique ports for different processes.
+Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the processs that can be used to generate unique ports for different processes.
 
 The environment variable is `KUTA_PROCESS_INDEX`
 
