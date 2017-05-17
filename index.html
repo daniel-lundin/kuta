@@ -69,6 +69,24 @@ test.group(&#39;a group&#39;, (t) =&gt; {
 
   t(&#39;a test in this group&#39;, () =&gt; {});
 });
+
+
+// Only running some tests
+test.only(&#39;will only run this test&#39;, () =&gt; {
+});
+
+test.only(&#39;and this since it also has only&#39;, () =&gt; {
+});
+
+
+// Skipped tests
+test.skip(&#39;this will not run&#39;, () =&gt; {
+});
+
+test.group.skip(&#39;nor will this group&#39;, (t) =&gt; {
+  t(&#39;or any tests withing it&#39;, () =&gt; {
+  });
+});
 </code></pre>
 <h3 id="running-tests">Running tests</h3><p>Tests are run with the <code>kuta</code> command:</p>
 <pre><code>  Usage: kuta [options] testfiles
