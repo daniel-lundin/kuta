@@ -63,6 +63,16 @@ test('should handle broken tests', () => {
     });
 });
 
+test.skip('should bail on first failure in --bail mode', () => {
+  return promisedExec('./bin/cli.js', ['test-files/failing-tests.js', '-b'])
+    .catch(({ stdout }) => {
+      const matches = stdout.match(/Failed: (\d+)/);
+      const failures = parseInt(matches[1], 10);
+
+      assert.equal(failures, 1);
+    });
+});
+
 feature('file watch', (scenario) => {
   scenario.before(() => {
     sinon.stub(cli, 'clearScreen');
