@@ -5,6 +5,7 @@ const minimist = require('minimist');
 const colors = require('colors');
 const glob = require('glob');
 const fs = require('fs');
+const os = require('os');
 
 const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
@@ -31,7 +32,7 @@ function readFromConfig() {
       const config = JSON.parse(data);
       const kutaConfig = config.kuta || {};
       return resolve({
-        processes: kutaConfig.processes || 4,
+        processes: kutaConfig.processes || os.cpus().length,
         requires: kutaConfig.requires || [],
         files: kutaConfig.files || [],
         timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
