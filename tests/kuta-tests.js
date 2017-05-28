@@ -6,6 +6,10 @@ const kuta = require('../lib/kuta');
 const feature = require('../lib/bdd').feature;
 const common = require('../lib/common');
 
+const IPCMock = {
+  send(message) { return message; }
+};
+
 const promiseTimeout = (callback, timeout = 1) => {
   return new Promise((resolve) => setTimeout(() => {
     callback();
@@ -91,7 +95,7 @@ kuta.test('measure time for each test', () => {
     return promiseTimeout(() => {}, 200);
   });
 
-  return test._runTests('a testfile', [])
+  return test._runTests('a testfile', [], 1000, IPCMock)
     .then((result) => {
       const testResult = result.results[0];
       expect(testResult).to.have.property('time');
@@ -122,7 +126,7 @@ kuta.test('complete test by callback', () => {
     done('error');
   });
 
-  return test._runTests('a testfile', [])
+  return test._runTests('a testfile', [], 1000, IPCMock)
     .then((results) => {
       sinon.assert.calledOnce(beforeStub);
       sinon.assert.calledOnce(testStub);
@@ -140,7 +144,7 @@ kuta.test('handle exception in callback-style test', () => {
     });
   });
 
-  return test._runTests('a testfile', [])
+  return test._runTests('a testfile', [], 1000, IPCMock)
     .then((res) => {
       assert.equal(res.results[0].result, common.TEST_FAILURE);
     });
@@ -160,7 +164,7 @@ kuta.test('should let event loop run in between', () => {
     sinon.assert.calledOnce(immediateCall);
   });
 
-  return test._runTests('a testfile', [])
+  return test._runTests('a testfile', [], 1000, IPCMock)
     .then((res) => {
       assert.equal(res.results[0].result, common.TEST_SUCCESS);
       assert.equal(res.results[1].result, common.TEST_SUCCESS);
@@ -189,7 +193,7 @@ kuta.test('matched inner test should run outer lifecycle hooks', () => {
     });
   });
 
-  return test._runTests('noop', ['matched test'])
+  return test._runTests('noop', ['matched test'], 1000, IPCMock)
     .then((res) => {
       assert.equal(res.groups.length, 1);
       assert.equal(res.groups[0].results[0].result, common.TEST_SUCCESS);
@@ -209,7 +213,7 @@ kuta.test.group('exception in hooks', (test) => {
   });
 
   test('should mark all test in group failed', () => {
-    return testGroup._runTests('noop', [])
+    return testGroup._runTests('noop', [], 1000, IPCMock)
       .then((res) => {
         const { results } = res.groups[0];
         assert.equal(results[0].result, common.TEST_FAILURE);
@@ -218,7 +222,7 @@ kuta.test.group('exception in hooks', (test) => {
   });
 
   test('except for already skipped tests', () => {
-    return testGroup._runTests('noop', ['passing test'])
+    return testGroup._runTests('noop', ['passing test'], 1000, IPCMock)
       .then((res) => {
         const { results } = res.groups[0];
         assert.equal(results[0].result, common.TEST_FAILURE);
@@ -239,7 +243,7 @@ kuta.test('should not run befores/afters for tests that don\'t match', () => {
     t('random', () => {});
   });
 
-  return test._runTests('nofile', ['matching'])
+  return test._runTests('nofile', ['matching'], 1000, IPCMock)
     .then(() => {
       sinon.assert.notCalled(before);
       sinon.assert.notCalled(after);
@@ -260,7 +264,7 @@ feature('timeouts', (scenario) => {
     });
 
     when('the testSuite starts running', () => {
-      suitePromise = testSuite._runTests('a filename', []);
+      suitePromise = testSuite._runTests('a filename', [], 1000, IPCMock);
     });
 
     then('the test in the suite should fail due to timeout', () => {
@@ -288,7 +292,7 @@ kuta.test('should skip .skip()', () => {
     t('also skipped', () => {});
   });
 
-  return test._runTests('nofile', [])
+  return test._runTests('nofile', [], 1000, IPCMock)
     .then((results) => {
       assert.equal(results.results.length, 1);
     });
