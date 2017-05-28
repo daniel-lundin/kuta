@@ -27,13 +27,11 @@
     "url": "https://github.com/daniel-lundin/kuta.git"
   },
   "dependencies": {
-    "blessed": "^0.1.81",
     "cli-cursor": "^2.1.0",
     "colors": "^1.1.2",
     "glob": "^7.1.1",
     "matcher": "^0.1.2",
     "minimist": "^1.2.0",
-    "ora": "^1.2.0",
     "qfgets": "^1.1.1"
   },
   "devDependencies": {
