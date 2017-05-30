@@ -112,9 +112,6 @@ function startTests(watchMode) {
       return runner.run(files, match, requires, processes, reporter, timeout, logger);
     })
     .then((results) => {
-      logger.log('');
-      logger.log(colors.bold(`Passed: ${colors.green(results.successes)}`));
-      logger.log(colors.bold(`Failed: ${colors.red(results.errors)}`));
       if (!watchMode) {
         if(results.errors > 0) {
           process.exit(EXIT_CODE_FAILURES);
