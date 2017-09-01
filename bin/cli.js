@@ -10,6 +10,7 @@ const os = require('os');
 const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
 const utils = require(path.join(__dirname, '../lib/utils'));
+const { restartProcessPool } = require(path.join(__dirname, '../lib/process-pool'));
 
 const EXIT_CODE_OK = 0;
 const EXIT_CODE_USAGE = 1;
@@ -135,7 +136,6 @@ let startNewRun = false;
 
 function runTests(watchMode) {
   testInProgress = true;
-  // TODO: Move startTest to seperate file for easier stubbing than this
   module.exports.startTests(watchMode).then(() => {
     testInProgress = false;
     if (startNewRun) {
@@ -147,6 +147,7 @@ function runTests(watchMode) {
 
     if (watchMode) {
       printInteractivePrompt();
+      restartProcessPool();
     }
   });
 }
