@@ -24,5 +24,14 @@ test('failing tests', () => {
     });
 });
 
+test('fail by timeout', () => {
+  return promisedSpawn('./bin/cli.js', ['test-files/slow-test.js', '-t', '100'])
+    .then(({ stdout }) => {
+      const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
+      const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
+      assert.equal(failedCount, 1);
+      assert.equal(passedCount, 0);
+    });
+});
 
 
