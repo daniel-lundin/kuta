@@ -3,6 +3,20 @@
 const spawn = require('child_process').spawn;
 const EventEmitter = require('events');
 
+function promisedSpawn(command, args, onData = () => {}) {
+  return new Promise((resolve) => {
+    const process = spawn(command, args);
+    let stdout = '';
+
+    process.on('close', (exitCode) => resolve({ exitCode, stdout }));
+
+    process.stdout.on('data', (data) => {
+      stdout += data;
+      if (onData) onData(data);
+    });
+  });
+}
+
 function kutaAsEmitter(processArgs) {
   const process = spawn('./bin/cli.js', processArgs);
   let processClosed = false;
@@ -53,5 +67,6 @@ function kutaAsEmitter(processArgs) {
 }
 
 module.exports = {
+  promisedSpawn,
   kutaAsEmitter
 };

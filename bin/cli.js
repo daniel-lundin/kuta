@@ -10,6 +10,7 @@ const os = require('os');
 const runner = require(path.join(__dirname, '../lib/runner'));
 const logger = require(path.join(__dirname, '../lib/logger'));
 const utils = require(path.join(__dirname, '../lib/utils'));
+const common = require(path.join(__dirname, '../lib/common'));
 const { restartProcessPool } = require(path.join(__dirname, '../lib/process-pool'));
 
 const EXIT_CODE_OK = 0;
@@ -120,34 +121,30 @@ function startTests(watchMode) {
       }
 
       return results;
-    })
-    .catch((err) => {
-      logger.log('Something went wrong', err);
-      process.exit(EXIT_CODE_FAILURES);
     });
 }
 
 function clearScreen() {
-  logger.log('\x1Bc');
+  // logger.log('\x1Bc');
 }
 
 let testInProgress = false;
-let startNewRun = false;
 
 function runTests(watchMode) {
   testInProgress = true;
   module.exports.startTests(watchMode).then(() => {
     testInProgress = false;
-    if (startNewRun) {
-      testInProgress = true;
-      startNewRun = false;
-      module.exports.clearScreen();
-      return runTests(watchMode);
-    }
 
     if (watchMode) {
       printInteractivePrompt();
       restartProcessPool();
+    }
+  })
+  .catch((err) => {
+    if (err === common.ABORT_EXIT_CODE) {
+      console.log('aborted')
+    } else {
+      console.log('startTests failed', err);
     }
   });
 }
@@ -162,12 +159,11 @@ function startWatch(dirs) {
   }
 
   function _triggerNewRun() {
-    if (!testInProgress) {
-      module.exports.clearScreen();
-      runTests(true);
-    } else {
-      startNewRun = true;
+    if (testInProgress) {
+      restartProcessPool();
     }
+    module.exports.clearScreen();
+    runTests(true);
   }
 
   const triggerNewRun = debounce(_triggerNewRun, 500);

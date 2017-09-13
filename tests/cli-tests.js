@@ -114,7 +114,7 @@ feature('file watch', (scenario) => {
     });
   });
 
-  scenario('wait for rerun until current test run is completed', ({ before, after, given, when, and, then }) => {
+  scenario('cancel current run on file change', ({ before, after, given, when, and, then }) => {
     let clock;
     let fsWatchCallback;
     let startTestsResolver;
@@ -148,8 +148,8 @@ feature('file watch', (scenario) => {
       clock.tick(1000);
     });
 
-    then('test should not restart', () => {
-      assert(cli.startTests.calledOnce, 'Only one test run should have been triggered');
+    then('test should restart', () => {
+      assert(cli.startTests.calledTwice, 'Only one test run should have been triggered');
     });
 
     when('test run completes', () => {
