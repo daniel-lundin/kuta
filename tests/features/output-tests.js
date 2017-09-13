@@ -17,4 +17,9 @@ test('return non-zero exit code for failing tests', () => {
     });
 });
 
-
+test('should handle broken tests', () => {
+  return promisedSpawn('./bin/cli.js', ['test-files/b0rked-test.js'])
+    .then(({ exitCode }) => {
+      assert.equal(exitCode, 10);
+    });
+});

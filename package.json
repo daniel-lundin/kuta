@@ -8,7 +8,7 @@
       "assert"
     ],
     "files": [
-      "tests/*-tests.js"
+      "tests/features/*"
     ],
     "processes": 4,
     "reporter": "progress"

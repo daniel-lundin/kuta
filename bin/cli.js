@@ -142,9 +142,9 @@ function runTests(watchMode) {
   })
   .catch((err) => {
     if (err === common.ABORT_EXIT_CODE) {
-      console.log('aborted')
+      // console.log('aborted')
     } else {
-      console.log('startTests failed', err);
+      // console.log('startTests failed', err);
     }
   });
 }

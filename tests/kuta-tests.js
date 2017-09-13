@@ -25,57 +25,6 @@ kuta.test('returning rejected promises should fail', () => {
     });
 });
 
-kuta.test.group('group test', (it) => {
-  const outerBeforeEach = sinon.stub();
-  const outerAfterEach = sinon.stub();
-  const innerBeforeEach = sinon.stub();
-  const innerAfterEach = sinon.stub();
-  const firstBefore = sinon.stub();
-  const firstAfter = sinon.stub();
-  const secondBefore = sinon.stub();
-
-  it.beforeEach(outerBeforeEach);
-  it.afterEach(outerAfterEach);
-
-  it.group('first group', (t) => {
-    t.before(firstBefore);
-    t.after(firstAfter);
-    t.beforeEach(innerBeforeEach);
-    t.afterEach(innerAfterEach);
-
-    t('first group tests', () => {
-    });
-  });
-
-  it.group('second group', (t) => {
-    t.before(secondBefore);
-
-    t('*eaches should run in correct order', () => {
-      sinon.assert.callOrder(
-        outerBeforeEach,
-        innerBeforeEach,
-        innerAfterEach,
-        outerAfterEach
-      );
-    });
-
-    t('after from previous group should have been called before', () => {
-      sinon.assert.callOrder(
-        firstBefore,
-        outerBeforeEach,
-        outerAfterEach,
-        firstAfter,
-        secondBefore,
-        outerBeforeEach
-      );
-    });
-
-    t('beforeEach in outer group should run beforeEach test in inner', () => {
-      sinon.assert.callCount(outerBeforeEach, 4);
-    });
-  });
-});
-
 kuta.test.group('async before/afters', (t) => {
   const beforeFunc = sinon.spy();
 
@@ -103,53 +52,6 @@ kuta.test('measure time for each test', () => {
     });
 });
 
-kuta.test('complete test by callback', () => {
-  const test = kuta._createTestGroup();
-  const testStub = sinon.stub();
-  const beforeStub = sinon.stub();
-
-  test.before((done) => {
-    setTimeout(() => {
-      beforeStub();
-      done();
-    }, 200);
-  });
-
-  test('a test', (done) => {
-    setTimeout(() => {
-      testStub();
-      done();
-    }, 200);
-  });
-
-  test('fail by callback', (done) => {
-    done('error');
-  });
-
-  return test._runTests('a testfile', [], 1000, IPCMock)
-    .then((results) => {
-      sinon.assert.calledOnce(beforeStub);
-      sinon.assert.calledOnce(testStub);
-      assert.equal(results.results[1].result, 'TEST_FAILURE');
-    });
-});
-
-kuta.test('handle exception in callback-style test', () => {
-  const test = kuta._createTestGroup();
-
-  test('callback exception', (done) => {
-    setImmediate(() => {
-      assert(false);
-      done();
-    });
-  });
-
-  return test._runTests('a testfile', [], 1000, IPCMock)
-    .then((res) => {
-      assert.equal(res.results[0].result, common.TEST_FAILURE);
-    });
-});
-
 kuta.test('should let event loop run in between', () => {
   const immediateCall = sinon.stub();
   const test = kuta._createTestGroup();
@@ -168,85 +70,6 @@ kuta.test('should let event loop run in between', () => {
     .then((res) => {
       assert.equal(res.results[0].result, common.TEST_SUCCESS);
       assert.equal(res.results[1].result, common.TEST_SUCCESS);
-    });
-});
-
-kuta.test('matched inner test should run outer lifecycle hooks', () => {
-  const outerBefore = sinon.stub();
-  const outerBeforeEach = sinon.stub();
-  const test = kuta._createTestGroup();
-
-  test.before(() => {
-    outerBefore();
-  });
-
-  test.beforeEach(() => {
-    outerBeforeEach();
-  });
-
-  test('foo', () => {});
-
-  test.group('group', (t) => {
-    t('matched test', () => {
-      sinon.assert.calledOnce(outerBefore);
-      sinon.assert.calledOnce(outerBeforeEach);
-    });
-  });
-
-  return test._runTests('noop', ['matched test'], 1000, IPCMock)
-    .then((res) => {
-      assert.equal(res.groups.length, 1);
-      assert.equal(res.groups[0].results[0].result, common.TEST_SUCCESS);
-    });
-});
-
-kuta.test.group('exception in hooks', (test) => {
-  const testGroup = kuta._createTestGroup();
-
-  testGroup.group('this is a group', (t) => {
-    t.after(() => {
-      throw new Error('FAIL!!1');
-    });
-
-    t('a passing test', () => {});
-    t('a skipped test', () => {});
-  });
-
-  test('should mark all test in group failed', () => {
-    return testGroup._runTests('noop', [], 1000, IPCMock)
-      .then((res) => {
-        const { results } = res.groups[0];
-        assert.equal(results[0].result, common.TEST_FAILURE);
-        assert.equal(results[1].result, common.TEST_FAILURE);
-      });
-  });
-
-  test('except for already skipped tests', () => {
-    return testGroup._runTests('noop', ['passing test'], 1000, IPCMock)
-      .then((res) => {
-        const { results } = res.groups[0];
-        assert.equal(results[0].result, common.TEST_FAILURE);
-        assert.equal(results[1].result, common.TEST_SKIPPED);
-      });
-  });
-});
-
-kuta.test('should not run befores/afters for tests that don\'t match', () => {
-  const test = kuta._createTestGroup();
-  const before = sinon.stub();
-  const after = sinon.stub();
-
-  test.before(before);
-  test.after(after);
-
-  test.group('group', (t) => {
-    t('random', () => {});
-  });
-
-  return test._runTests('nofile', ['matching'], 1000, IPCMock)
-    .then(() => {
-      sinon.assert.notCalled(before);
-      sinon.assert.notCalled(after);
     });
 });
 

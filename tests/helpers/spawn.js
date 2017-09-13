@@ -18,7 +18,7 @@ function promisedSpawn(command, args, onData = () => {}) {
 }
 
 function kutaAsEmitter(processArgs) {
-  const process = spawn('./bin/cli.js', processArgs);
+  const kuta = spawn('./bin/cli.js', processArgs);
   let processClosed = false;
   let failures;
   let passes;
@@ -26,9 +26,10 @@ function kutaAsEmitter(processArgs) {
   let fullData = '';
   const testCompletedEmitter = new EventEmitter();
 
-  process.stdout.on('data', (data) => {
+  kuta.stdout.on('data', (data) => {
     dataRead += data.toString();
     fullData += data.toString();
+    // process.stdout.write(` > ${data.toString()} < `);
     const matches = dataRead.match(/Passed: (\d+)\nFailed: (\d+)/);
     if (matches && matches.length === 3) {
       dataRead = '';
@@ -38,7 +39,7 @@ function kutaAsEmitter(processArgs) {
     }
   });
 
-  process.on('close', () => {
+  kuta.on('close', () => {
     processClosed = true;
   });
 
@@ -61,7 +62,7 @@ function kutaAsEmitter(processArgs) {
       return fullData;
     },
     kill() {
-      process.kill();
+      kuta.kill();
     }
   };
 }

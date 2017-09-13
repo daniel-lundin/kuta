@@ -8,3 +8,14 @@ test('a simple failing test', () => {
 test('failing by rejecting', () => {
   return Promise.reject();
 });
+
+test('out of bounds rejections', (done) => {
+  setTimeout(() => {
+    assert(false);
+    done();
+  });
+});
+
+test('done with error', (done) => {
+  setTimeout(() => done(new Error('')), 100);
+});

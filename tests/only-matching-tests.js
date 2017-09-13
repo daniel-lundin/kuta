@@ -4,8 +4,8 @@ const kuta = require('../lib/kuta');
 const { scanForOnlys } = require('../lib/utils');
 
 kuta.test('should extract test names with .only', () => {
-
   const filename = './test-files/file-with-onlys.js';
+
   return scanForOnlys([filename])
     .then((result) => {
       assert.equal(result[filename].length, 4);

@@ -1,7 +1,7 @@
 const assert = require('assert');
 
-const test = require('../lib/kuta.js').test;
-const kutaAsEmitter = require('./helpers/process-emitter').kutaAsEmitter;
+const test = require('../../lib/kuta.js').test;
+const kutaAsEmitter = require('../helpers/spawn').kutaAsEmitter;
 
 test('should run bdd-style tests', () => {
   const kutaEmitter = kutaAsEmitter(['test-files/bdd-file.js']);

@@ -1,8 +1,5 @@
 const test = require('../lib/kuta.js').test;
-const assert = require('assert');
 
-test('slow test', () => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, 5000);
-  });
-});
+test('slow test', () =>
+  new Promise((resolve) =>
+    setTimeout(resolve, 2000)));

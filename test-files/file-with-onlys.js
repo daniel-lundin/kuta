@@ -1,3 +1,4 @@
+const assert = require('assert');
 const test = require('../lib/kuta.js').test;
 
 test('not only', () => {
@@ -14,6 +15,21 @@ test.group('a group without only', (t) => {
   });
 
   t.only('however this should run', () => {});
+});
+
+test.group('outer group', (outerGroup) => {
+  let beforeRun = false;
+
+  outerGroup.before(() => {
+    beforeRun = true;
+  });
+
+  outerGroup.group('inner group', (t) => {
+
+    t.only('inner group test', () => {
+      assert(beforeRun);
+    });
+  });
 });
 
 test.group.only('group with only', (t) => {
