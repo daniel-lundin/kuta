@@ -10,7 +10,7 @@
     "files": [
       "tests/features/*"
     ],
-    "processes": 4,
+    "timeout": 4000,
     "reporter": "progress"
   },
   "pre-commit": [

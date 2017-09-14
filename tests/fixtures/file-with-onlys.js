@@ -1,5 +1,5 @@
 const assert = require('assert');
-const test = require('../lib/kuta.js').test;
+const test = require('../../lib/kuta.js').test;
 
 test('not only', () => {
   throw new Error('nooooo');

@@ -1,4 +1,4 @@
-const test = require('../lib/kuta.js').test;
+const test = require('../../lib/kuta.js').test;
 
 test('slow test', () =>
   new Promise((resolve) =>

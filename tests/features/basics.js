@@ -4,7 +4,7 @@ const assert = require('assert');
 const { spawn } = require('../helpers/spawn');
   
 test('passing tests', () => {
-  return spawn('./bin/cli.js', ['test-files/passing-tests.js'])
+  return spawn('./bin/cli.js', ['tests/fixtures/passing-tests.js'])
     .then(({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
@@ -15,7 +15,7 @@ test('passing tests', () => {
 });
 
 test('failing tests', () => {
-  return spawn('./bin/cli.js', ['test-files/failing-tests.js'])
+  return spawn('./bin/cli.js', ['tests/fixtures/failing-tests.js'])
     .then(({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
@@ -25,7 +25,7 @@ test('failing tests', () => {
 });
 
 test('fail by timeout', () => {
-  return spawn('./bin/cli.js', ['test-files/slow-test.js', '-t', '100'])
+  return spawn('./bin/cli.js', ['tests/fixtures/slow-test.js', '-t', '100'])
     .then(({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);

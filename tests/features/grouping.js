@@ -4,7 +4,7 @@ const assert = require('assert');
 const { spawn } = require('../helpers/spawn');
  
 test('lifecycle hooks should run in correct order', () => {
-  return spawn('./bin/cli.js', ['test-files/lifecycles.js'])
+  return spawn('./bin/cli.js', ['tests/fixtures/lifecycles.js'])
     .then(({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
@@ -15,7 +15,7 @@ test('lifecycle hooks should run in correct order', () => {
 });
 
 test('exceptions in befores/afters mark tests in group failed', () => {
-  return spawn('./bin/cli.js', ['test-files/failing-group.js'])
+  return spawn('./bin/cli.js', ['tests/fixtures/failing-group.js'])
     .then(({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);

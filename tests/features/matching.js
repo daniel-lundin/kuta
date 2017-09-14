@@ -13,7 +13,7 @@ feature('.only running', (scenario) => {
     });
 
     given('a kuta process', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/file-with-onlys.js']);
+      kutaProcessEmitter = kutaAsEmitter(['tests/fixtures/file-with-onlys.js']);
     });
 
     when('kuta process completed', () => {
@@ -36,7 +36,7 @@ feature('skip .skip', (scenario) => {
     });
 
     given('a kuta process', () => {
-      kutaProcessEmitter = kutaAsEmitter(['test-files/skipped-tests.js']);
+      kutaProcessEmitter = kutaAsEmitter(['tests/fixtures/skipped-tests.js']);
     });
 
     when('kuta process completed', () => {

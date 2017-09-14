@@ -24,7 +24,7 @@ function promisedExec(command, args, onData = () => {}) {
 
 
 test.skip('should bail on first failure in --bail mode', () => {
-  return promisedExec('./bin/cli.js', ['test-files/failing-tests.js', '-b'])
+  return promisedExec('./bin/cli.js', ['tests/fixtures/failing-tests.js', '-b'])
     .catch(({ stdout }) => {
       const matches = stdout.match(/Failed: (\d+)/);
       const failures = parseInt(matches[1], 10);

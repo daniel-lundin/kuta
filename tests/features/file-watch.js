@@ -12,8 +12,8 @@ feature('file watch', (scenario) => {
     given('a started test runner in watch mode', () => {
       kutaEmitter = kutaAsEmitter([
         '-w',
-        'test-files/passing-tests.js',
-        'test-files/passing-tests.js'
+        'tests/fixtures/passing-tests.js',
+        'tests/fixtures/passing-tests.js'
       ]);
     });
 
@@ -21,7 +21,7 @@ feature('file watch', (scenario) => {
       kutaEmitter.waitForCompletedRun());
 
     and('a file change is triggered', () =>
-      spawn('touch', ['test-files/passing-tests.js']));
+      spawn('touch', ['tests/fixtures/passing-tests.js']));
 
     then('tests should run again', () =>
       kutaEmitter.waitForCompletedRun());
@@ -35,7 +35,11 @@ feature('file watch', (scenario) => {
     });
 
     given('a started kuta process', () => {
-      kutaProcessEmitter = kutaAsEmitter(['-w', 'test-files', 'test-files/failing-tests.js']);
+      kutaProcessEmitter = kutaAsEmitter([
+        '-w',
+        'tests/fixtures/failing-tests.js',
+        'tests/fixtures/failing-tests.js'
+      ]);
     });
 
     when('some time flies', () => {
@@ -43,7 +47,7 @@ feature('file watch', (scenario) => {
     });
 
     when('a file is changed', () =>
-      spawn('touch', ['test-files/failing-tests.js']));
+      spawn('touch', ['tests/fixtures/failing-tests.js']));
 
     when('some more time flies', () => {
       return kutaProcessEmitter.waitForCompletedRun();

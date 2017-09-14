@@ -1,4 +1,4 @@
-const feature = require('../lib/bdd.js').feature;
+const feature = require('../../lib/bdd.js').feature;
 const assert = require('assert');
 const sinon = require('sinon');
 
