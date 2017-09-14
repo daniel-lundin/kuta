@@ -68,6 +68,6 @@ function kutaAsEmitter(processArgs) {
 }
 
 module.exports = {
-  promisedSpawn,
+  spawn: promisedSpawn,
   kutaAsEmitter
 };

@@ -1,7 +1,7 @@
 const assert = require('assert');
 
 const feature = require('../../lib/bdd').feature;
-const { promisedSpawn, kutaAsEmitter } = require('../helpers/spawn');
+const { spawn, kutaAsEmitter } = require('../helpers/spawn');
 
 feature('file watch', (scenario) => {
   scenario('trigger new run on file change', ({ after, given, when, then, and }) => {
@@ -21,7 +21,7 @@ feature('file watch', (scenario) => {
       kutaEmitter.waitForCompletedRun());
 
     and('a file change is triggered', () =>
-      promisedSpawn('touch', ['test-files/passing-tests.js']));
+      spawn('touch', ['test-files/passing-tests.js']));
 
     then('tests should run again', () =>
       kutaEmitter.waitForCompletedRun());
@@ -43,7 +43,7 @@ feature('file watch', (scenario) => {
     });
 
     when('a file is changed', () =>
-      promisedSpawn('touch', ['test-files/failing-tests.js']));
+      spawn('touch', ['test-files/failing-tests.js']));
 
     when('some more time flies', () => {
       return kutaProcessEmitter.waitForCompletedRun();
