@@ -93,5 +93,4 @@ feature('file watch', (scenario) => {
       assert.equal(matches.length, 2);
     });
   });
-
 });

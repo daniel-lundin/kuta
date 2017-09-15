@@ -125,14 +125,14 @@ function startTests(watchMode) {
 }
 
 function clearScreen() {
-  // logger.log('\x1Bc');
+  logger.log('\x1Bc');
 }
 
 let testInProgress = false;
 
 function runTests(watchMode) {
   testInProgress = true;
-  module.exports.startTests(watchMode).then(() => {
+  startTests(watchMode).then(() => {
     testInProgress = false;
 
     if (watchMode) {
@@ -141,11 +141,9 @@ function runTests(watchMode) {
     }
   })
   .catch((err) => {
-    if (err === common.ABORT_EXIT_CODE) {
-      // console.log('aborted')
-    } else {
-      // console.log('startTests failed', err);
-    }
+    if (err !== common.ABORT_EXIT_CODE) {
+      throw err;
+    } 
   });
 }
 
@@ -162,7 +160,7 @@ function startWatch(dirs) {
     if (testInProgress) {
       restartProcessPool();
     }
-    module.exports.clearScreen();
+    clearScreen();
     runTests(true);
   }
 
