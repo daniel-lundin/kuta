@@ -1,10 +1,10 @@
 const assert = require('assert');
 
-const test = require('../lib/kuta.js').test;
-const kutaAsEmitter = require('./helpers/process-emitter').kutaAsEmitter;
+const test = require('../../lib/kuta.js').test;
+const kutaAsEmitter = require('../helpers/spawn').kutaAsEmitter;
 
 test('should run bdd-style tests', () => {
-  const kutaEmitter = kutaAsEmitter(['test-files/bdd-file.js']);
+  const kutaEmitter = kutaAsEmitter(['tests/fixtures/bdd-file.js']);
 
   return kutaEmitter.waitForCompletedRun()
     .then(() => {
@@ -13,7 +13,7 @@ test('should run bdd-style tests', () => {
 });
 
 test('should run jasmine-style tests', () => {
-  const kutaEmitter = kutaAsEmitter(['test-files/jasmine-dsl.js']);
+  const kutaEmitter = kutaAsEmitter(['tests/fixtures/jasmine-dsl.js']);
 
   return kutaEmitter.waitForCompletedRun()
     .then(() => {
@@ -22,7 +22,7 @@ test('should run jasmine-style tests', () => {
 });
 
 test('should run mocha-style tests', () => {
-  const kutaEmitter = kutaAsEmitter(['test-files/mocha-test.js']);
+  const kutaEmitter = kutaAsEmitter(['tests/fixtures/mocha-test.js']);
 
   return kutaEmitter.waitForCompletedRun()
     .then(() => {

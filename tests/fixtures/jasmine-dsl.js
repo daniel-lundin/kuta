@@ -1,4 +1,4 @@
-const describe = require('../lib/bdd.js').describe;
+const describe = require('../../lib/bdd.js').describe;
 const assert = require('assert');
 const sinon = require('sinon');
 

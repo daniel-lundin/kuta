@@ -4,13 +4,10 @@
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "kuta": {
-    "requires": [
-      "assert"
-    ],
     "files": [
-      "tests/*-tests.js"
+      "tests/features/*"
     ],
-    "processes": 4,
+    "timeout": 10000,
     "reporter": "progress"
   },
   "pre-commit": [
@@ -46,7 +43,7 @@
   "scripts": {
     "test": "./bin/cli.js",
     "lint": "eslint lib tests bin",
-    "ci": "npm run lint && npm run test",
+    "ci": "npm run lint && npm run test -- --processes 2",
     "gh-pages": "node ghp-source/compile.js && gh-pages -d gh-pages",
     "postpublish": "npm run gh-pages"
   }

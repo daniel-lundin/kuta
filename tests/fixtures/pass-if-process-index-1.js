@@ -1,4 +1,4 @@
-const test = require('../lib/kuta.js').test;
+const test = require('../../lib/kuta.js').test;
 const assert = require('assert');
 
 test('pass if run from with process index 1', () => {
