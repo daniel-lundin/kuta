@@ -58,51 +58,40 @@ feature('file watch', (scenario) => {
     });
   });
 
-  // scenario('cancel current run on file change', ({ before, after, given, when, and, then }) => {
-  //   let clock;
-  //   let fsWatchCallback;
-  //   let startTestsResolver;
+  scenario('cancel current run on file change', ({ given, when, and, then }) => {
+    let kutaEmitter;
 
-  //   before(() => {
-  //     sinon.stub(fs, 'watch', (dir, opts, callback) => { fsWatchCallback = callback; });
-  //     sinon.stub(logger, 'log');
-  //     sinon.stub(cli, 'startTests').returns(new Promise((resolve) => {
-  //       startTestsResolver = resolve;
-  //     }));
-  //     clock = sinon.useFakeTimers();
-  //   });
+    given('a started runner in watch mode', () => {
+      kutaEmitter = kutaAsEmitter([
+        '-p', '1',
+        '-w', 'tests/fixtures/slow-tests.js',
+        'tests/fixtures/slow-tests.js'
+      ]);
+    });
 
-  //   after(() => {
-  //     fs.watch.restore();
-  //     cli.startTests.restore();
-  //     clock.restore();
-  //     logger.log.restore();
-  //   });
+    when('runner is completed', () =>
+      kutaEmitter.waitForCompletedRun());
 
-  //   given('a directory watch', () => {
-  //     cli.startWatch(['some dir']);
-  //   });
+    and('a file change is triggered', () =>
+      spawn('touch', ['tests/fixtures/slow-tests.js']));
 
-  //   when('a test run is started', () => {
-  //     cli.runTests();
-  //   });
+    when('tests are restarting', () =>
+      kutaEmitter.waitForOutput());
 
-  //   and('a file change is triggered', () => {
-  //     fsWatchCallback();
-  //     clock.tick(1000);
-  //   });
+    and('a file change is triggered again', () =>
+      spawn('touch', ['tests/fixtures/slow-tests.js']));
 
-  //   then('test should restart', () => {
-  //     assert(cli.startTests.calledTwice, 'Only one test run should have been triggered');
-  //   });
+    when('tests are run to completetion', () =>
+      kutaEmitter.waitForCompletedRun());
 
-  //   when('test run completes', () => {
-  //     startTestsResolver();
-  //   });
-
-  //   then('tests should run again', () => {
-  //     assert(cli.startTests.calledTwice, 'startTests should have been twice');
-  //   });
-  // });
+    then('two completed and one aborted test run should have occured', () => {
+      const output = kutaEmitter.data();
+      const pattern = /Passed/g;
+      const matches = [];
+      let match;
+      while(match = pattern.exec(output)) matches.push(match); // eslint-disable-line
+      assert.equal(matches.length, 2);
+    });
+  });
 
 });

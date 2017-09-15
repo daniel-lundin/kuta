@@ -4,13 +4,10 @@
   "description": "blazing fast test runner",
   "main": "./lib/kuta.js",
   "kuta": {
-    "requires": [
-      "assert"
-    ],
     "files": [
       "tests/features/*"
     ],
-    "timeout": 4000,
+    "timeout": 10000,
     "reporter": "progress"
   },
   "pre-commit": [

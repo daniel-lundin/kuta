@@ -1,4 +1,5 @@
 function parsePassed(stdout) {
+  let match;
   const regex = /Passed.*(\d)/g;
   const matches = [];
   while (match = regex.exec(stdout)) matches.push(match); // eslint-disable-line
@@ -6,6 +7,7 @@ function parsePassed(stdout) {
 }
  
 function parseFailed(stdout) {
+  let match;
   const regex = /Failed.*(\d)/g;
   const matches = [];
   while (match = regex.exec(stdout)) matches.push(match); // eslint-disable-line

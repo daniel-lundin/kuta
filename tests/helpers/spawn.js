@@ -24,7 +24,7 @@ function kutaAsEmitter(processArgs) {
   let passes;
   let dataRead = '';
   let fullData = '';
-  const testCompletedEmitter = new EventEmitter();
+  const processEmitter = new EventEmitter();
 
   kuta.stdout.on('data', (data) => {
     dataRead += data.toString();
@@ -35,8 +35,9 @@ function kutaAsEmitter(processArgs) {
       dataRead = '';
       passes = parseInt(matches[1], 10);
       failures = parseInt(matches[2], 10);
-      testCompletedEmitter.emit('completed');
+      processEmitter.emit('completed');
     }
+    processEmitter.emit('output');
   });
 
   kuta.on('close', () => {
@@ -46,7 +47,12 @@ function kutaAsEmitter(processArgs) {
   return {
     waitForCompletedRun() {
       return new Promise((resolve) => {
-        testCompletedEmitter.on('completed', resolve);
+        processEmitter.on('completed', resolve);
+      });
+    },
+    waitForOutput() {
+      return new Promise((resolve) => {
+        processEmitter.on('output', resolve);
       });
     },
     failures() {

@@ -125,7 +125,7 @@ function startTests(watchMode) {
 }
 
 function clearScreen() {
-  logger.log('\x1Bc');
+  // logger.log('\x1Bc');
 }
 
 let testInProgress = false;
