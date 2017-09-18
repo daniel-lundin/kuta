@@ -56,6 +56,7 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log('  -p, --processes\t\tNumber of processes in the process pool');
   logger.log('  -t, --timeout\t\t\tNumber of milliseconds before tests timeout');
   logger.log('  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests');
+  // logger.log('  -b, --bail \t\t\tExit on first failure');
   logger.log('  -h, --help \t\t\tPrint this help');
   logger.log('');
   process.exit(exitCode);
@@ -87,6 +88,7 @@ function startTests(watchMode) {
       const processes = parseInt(args.processes || args.p, 10);
       const timeout = args.timeout || args.t;
       const reporter = args.reporter;
+      const bailMode = args.b || args.bail;
       const files = args._;
       const filePromises = (files.length ? files : config.files)
         .map(promiseGlob)
@@ -105,13 +107,14 @@ function startTests(watchMode) {
             processes: processes || config.processes,
             timeout: timeout ? timeout : config.timeout,
             reporter: reporter || config.reporter,
+            bailMode,
             files: Object.keys(onlyMatches).length ? filteredFiles : files
           };
         });
     })
-    .then(({ files, match, requires, processes, reporter, timeout }) => {
+    .then(({ files, match, requires, processes, reporter, bailMode, timeout }) => {
       logger.log(`Running ${files.length} test file(s) in ${processes} processes...\n`);
-      return runner.run(files, match, requires, processes, reporter, timeout, logger);
+      return runner.run(files, match, requires, processes, reporter, timeout, bailMode, logger);
     })
     .then((results) => {
       if (!watchMode) {

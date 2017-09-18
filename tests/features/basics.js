@@ -2,6 +2,7 @@ const test = require('../../lib/kuta').test;
 const assert = require('assert');
 
 const { spawn } = require('../helpers/spawn');
+const { parseResult } = require('../helpers/output-parser');
   
 test('passing tests', () => {
   return spawn('./bin/cli.js', ['tests/fixtures/passing-tests.js'])
@@ -34,4 +35,11 @@ test('fail by timeout', () => {
     });
 });
 
+test.skip('should bail on first failure in --bail mode', () => {
+  return spawn('./bin/cli.js', ['tests/fixtures/failing-tests.js', '-b'])
+    .then(({ stdout }) => {
+      const { failedCount } = parseResult(stdout);
+      assert.equal(failedCount, 1);
+    });
+});
 
