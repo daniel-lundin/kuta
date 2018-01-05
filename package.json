@@ -37,6 +37,7 @@
     "eslint-config-prettier": "^2.9.0",
     "gh-pages": "^1.0.0",
     "marked": "^0.3.6",
+    "md2ghp": "0.0.6",
     "nyc": "^10.0.0",
     "pre-commit": "^1.2.2",
     "sinon": "^1.17.6"
@@ -46,6 +47,6 @@
     "lint": "eslint lib tests bin",
     "ci": "npm run lint && npm run test -- --processes 2",
     "gh-pages": "node ghp-source/compile.js && gh-pages -d gh-pages",
-    "postpublish": "npm run gh-pages"
+    "postpublish": "md2ghp"
   }
 }
