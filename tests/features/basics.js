@@ -1,45 +1,49 @@
-const test = require('../../lib/kuta').test;
-const assert = require('assert');
+const test = require("../../lib/kuta").test;
+const assert = require("assert");
 
-const { spawn } = require('../helpers/spawn');
-const { parseResult } = require('../helpers/output-parser');
-  
-test('passing tests', () => {
-  return spawn('./bin/cli.js', ['tests/fixtures/passing-tests.js'])
-    .then(({ stdout }) => {
+const { spawn } = require("../helpers/spawn");
+const { parseResult } = require("../helpers/output-parser");
+
+test("passing tests", () => {
+  return spawn("./bin/cli.js", ["tests/fixtures/passing-tests.js"]).then(
+    ({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
       assert.equal(failedCount, 0);
       assert.equal(passedCount, 3);
-    });
-    
+    }
+  );
 });
 
-test('failing tests', () => {
-  return spawn('./bin/cli.js', ['tests/fixtures/failing-tests.js'])
-    .then(({ stdout }) => {
+test("failing tests", () => {
+  return spawn("./bin/cli.js", ["tests/fixtures/failing-tests.js"]).then(
+    ({ stdout }) => {
       const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
       const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
       assert.equal(failedCount, 4);
       assert.equal(passedCount, 0);
-    });
+    }
+  );
 });
 
-test('fail by timeout', () => {
-  return spawn('./bin/cli.js', ['tests/fixtures/slow-test.js', '-t', '100'])
-    .then(({ stdout }) => {
-      const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
-      const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
-      assert.equal(failedCount, 1);
-      assert.equal(passedCount, 0);
-    });
+test("fail by timeout", () => {
+  return spawn("./bin/cli.js", [
+    "tests/fixtures/slow-test.js",
+    "-t",
+    "100"
+  ]).then(({ stdout }) => {
+    const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
+    const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
+    assert.equal(failedCount, 1);
+    assert.equal(passedCount, 0);
+  });
 });
 
-test.skip('should bail on first failure in --bail mode', () => {
-  return spawn('./bin/cli.js', ['tests/fixtures/failing-tests.js', '-b'])
-    .then(({ stdout }) => {
+test.skip("should bail on first failure in --bail mode", () => {
+  return spawn("./bin/cli.js", ["tests/fixtures/failing-tests.js", "-b"]).then(
+    ({ stdout }) => {
       const { failedCount } = parseResult(stdout);
       assert.equal(failedCount, 1);
-    });
+    }
+  );
 });
-

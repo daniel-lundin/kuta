@@ -1,31 +1,17 @@
 module.exports = {
-  'env': {
-    'browser': true,
-    'commonjs': true,
-    'es6': true
+  env: {
+    browser: true,
+    commonjs: true,
+    es6: true
   },
-  'globals': {
-    'process': true,
-    '__dirname': true,
-    'setImmediate': true
+  globals: {
+    process: true,
+    __dirname: true,
+    setImmediate: true
   },
-  'extends': 'eslint:recommended',
-  'rules': {
-    'indent': [
-      'error',
-      2
-    ],
-    'linebreak-style': [
-      'error',
-      'unix'
-    ],
-    'quotes': [
-      'error',
-      'single'
-    ],
-    'semi': [
-      'error',
-      'always'
-    ]
+  extends: ["eslint:recommended", "prettier"],
+  rules: {
+    "linebreak-style": ["error", "unix"],
+    semi: ["error", "always"]
   }
 };
