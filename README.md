@@ -1,5 +1,7 @@
 # kuta
+
 ![logo](https://github.com/daniel-lundin/kuta/raw/master/assets/kuta-logo.png)
+
 [![Build Status](https://travis-ci.org/daniel-lundin/kuta.svg?branch=master)](https://travis-ci.org/daniel-lundin/kuta)
 [![npm version](https://badge.fury.io/js/kuta.svg)](https://badge.fury.io/js/kuta)
 
