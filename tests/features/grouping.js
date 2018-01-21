@@ -24,3 +24,14 @@ test("exceptions in befores/afters mark tests in group failed", () => {
     }
   );
 });
+
+test("should bail on first fail in scenarios", () => {
+  return spawn("./bin/cli.js", ["tests/fixtures/failing-scenario.js"]).then(
+    ({ stdout }) => {
+      const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
+      const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
+      assert.equal(failedCount, 2);
+      assert.equal(passedCount, 5);
+    }
+  );
+});
