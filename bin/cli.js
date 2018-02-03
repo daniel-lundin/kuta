@@ -182,33 +182,30 @@ function runTests(watchMode) {
 }
 
 function startWatch(dirs) {
-  function throttle(fn, delay) {
-    let lastCall = Date.now();
+  function debounce(fn, delay) {
+    let timer = null;
     return function() {
-      if (Date.now() - lastCall < delay) {
-        return;
-      }
-      lastCall = Date.now();
-      fn();
+      clearTimeout(timer);
+      timer = setTimeout(fn, delay);
     };
   }
 
   function _triggerNewRun() {
     if (testInProgress) {
-      // restartProcessPool();
+      return; // TODO: gracefully stop current run then start a new one
     }
     clearScreen();
     runTests(true);
   }
 
-  const triggerNewRun = throttle(_triggerNewRun, 500);
+  const triggerNewRun = debounce(_triggerNewRun, 250);
 
   dirs.forEach(dir => {
     const watchOpts = {
       recursive: true
     };
-    fs.watch(dir, watchOpts, file => {
-      processPool.broadcast(common.clearRequireCache(file));
+    fs.watch(dir, watchOpts, (type, file) => {
+      processPool.broadcast(common.clearRequireCache(path.join(dir, file)));
       triggerNewRun();
     });
   });

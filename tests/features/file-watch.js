@@ -65,7 +65,7 @@ feature("file watch", scenario => {
   );
 
   scenario(
-    "cancel current run on file change",
+    "not interrupt current run on file change",
     ({ given, when, and, then }) => {
       let kutaEmitter;
 

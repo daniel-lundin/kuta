@@ -15,7 +15,7 @@ test("four 1s suites should run in ~2s with 2 processes", () => {
     "tests/fixtures/slow-test.js"
   ]).then(({ exitCode }) => {
     const testDuration = Date.now() - startTime;
-    assert(testDuration < 2500, `Tests took to long ${testDuration}`);
+    assert(testDuration < 3000, `Tests took to long ${testDuration}`);
     assert.equal(exitCode, 0);
   });
 });
