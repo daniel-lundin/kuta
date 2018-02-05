@@ -162,6 +162,7 @@ function clearScreen() {
 }
 
 let testInProgress = false;
+let testsQueued = false;
 
 function runTests(watchMode) {
   testInProgress = true;
@@ -171,7 +172,10 @@ function runTests(watchMode) {
 
       if (watchMode) {
         printInteractivePrompt();
-        // restartProcessPool();
+        if (testsQueued) {
+          runTests(watchMode);
+          testsQueued = false;
+        }
       }
     })
     .catch(err => {
@@ -192,10 +196,11 @@ function startWatch(dirs) {
 
   function _triggerNewRun() {
     if (testInProgress) {
-      return; // TODO: gracefully stop current run then start a new one
+      testsQueued = true;
+    } else {
+      clearScreen();
+      runTests(true);
     }
-    clearScreen();
-    runTests(true);
   }
 
   const triggerNewRun = debounce(_triggerNewRun, 250);

@@ -95,13 +95,17 @@ feature("file watch", scenario => {
         kutaEmitter.waitForCompletedRun()
       );
 
+      when("tests are run to completetion again", () =>
+        kutaEmitter.waitForCompletedRun()
+      );
+
       then("two completed and one aborted test run should have occured", () => {
         const output = kutaEmitter.data();
         const pattern = /Passed/g;
         const matches = [];
         let match;
         while ((match = pattern.exec(output))) matches.push(match); // eslint-disable-line
-        assert.equal(matches.length, 2);
+        assert.equal(matches.length, 3);
       });
     }
   );
