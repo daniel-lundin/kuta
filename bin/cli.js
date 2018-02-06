@@ -197,6 +197,7 @@ function startWatch(dirs) {
   function _triggerNewRun() {
     if (testInProgress) {
       testsQueued = true;
+      processPool.broadcast(common.stopTests());
     } else {
       clearScreen();
       runTests(true);
