@@ -87,74 +87,81 @@ function promiseGlob(globPattern) {
   });
 }
 
-function startTests(watchMode) {
-  return readFromConfig()
-    .then(config => {
-      const args = minimist(process.argv.slice(2));
-      if (args._.length === 0 && config.files.length < 1) {
-        printUsage();
-      }
+async function getTestFiles(files) {
+  const filePromises = files
+    .map(promiseGlob)
+    .reduce((acc, curr) => acc.concat(curr), []);
 
-      const requires = utils.arrayParam(args.require, args.r);
-      const processes = parseInt(args.processes || args.p, 10);
-      const timeout = args.timeout || args.t;
-      const reporter = args.reporter;
-      const bailMode = args.b || args.bail;
-      const files = args._;
-      const filePromises = (files.length ? files : config.files)
-        .map(promiseGlob)
-        .reduce((acc, curr) => acc.concat(curr), []);
-      return Promise.all(filePromises)
-        .then(files => files.reduce((acc, curr) => acc.concat(curr), []))
-        .then(files =>
-          utils
-            .scanForOnlys(files)
-            .then(onlyMatches => ({ files, onlyMatches }))
-        )
-        .then(({ files, onlyMatches }) => {
-          const filteredFiles = files.filter(file =>
-            Object.keys(onlyMatches).includes(file)
-          );
-          return {
-            requires: requires.length ? requires : config.requires,
-            match: onlyMatches,
-            processes: processes || config.processes,
-            timeout: timeout ? timeout : config.timeout,
-            reporter: reporter || config.reporter,
-            bailMode,
-            files: Object.keys(onlyMatches).length ? filteredFiles : files
-          };
-        });
-    })
-    .then(
-      ({ files, match, requires, processes, reporter, bailMode, timeout }) => {
-        logger.log(
-          `Running ${files.length} test file(s) in ${processes} processes...\n`
-        );
-        return runner.run(
-          files,
-          match,
-          requires,
-          processes,
-          reporter,
-          timeout,
-          bailMode,
-          logger
-        );
-      }
-    )
-    .then(results => {
-      if (!watchMode) {
-        processPool.stopProcessPool();
-        if (results.errors > 0) {
-          process.exit(EXIT_CODE_FAILURES);
-        } else {
-          process.exit(0);
-        }
-      }
+  return Promise.all(filePromises)
+    .then(files => files.reduce((acc, curr) => acc.concat(curr), []))
+    .then(testFiles =>
+      utils
+        .scanForOnlys(testFiles)
+        .then(onlyMatches => ({ testFiles, onlyMatches }))
+    );
+}
 
-      return results;
-    });
+async function startTests(watchMode) {
+  const config = await readFromConfig();
+  const args = minimist(process.argv.slice(2));
+  if (args._.length === 0 && config.files.length < 1) {
+    printUsage();
+  }
+
+  const requires = utils.arrayParam(args.require, args.r);
+  const processes = parseInt(args.processes || args.p, 10);
+  const timeout = args.timeout || args.t;
+  const reporter = args.reporter;
+  const bailMode = args.b || args.bail;
+  const files = args._;
+
+  const { testFiles, onlyMatches } = await getTestFiles(
+    files.length ? files : config.files
+  );
+  const filteredFiles = testFiles.filter(file =>
+    Object.keys(onlyMatches).includes(file)
+  );
+
+  const runnerArgs = {
+    requires: requires.length ? requires : config.requires,
+    match: onlyMatches,
+    processes: processes || config.processes,
+    timeout: timeout ? timeout : config.timeout,
+    reporter: reporter || config.reporter,
+    bailMode,
+    files: Object.keys(onlyMatches).length ? filteredFiles : testFiles
+  };
+
+  logger.log(
+    `Running ${testFiles.length} test file(s) in ${
+      runnerArgs.processes
+    } processes...\n`
+  );
+
+  const results = await runner.run(
+    runnerArgs.files,
+    runnerArgs.match,
+    runnerArgs.requires,
+    runnerArgs.processes,
+    runnerArgs.reporter,
+    runnerArgs.timeout,
+    bailMode,
+    logger
+  );
+
+  if (!watchMode) {
+    processPool.stopProcessPool();
+    const failures = results
+      .map(utils.summarizeResults)
+      .reduce((errors, curr) => errors + curr.errors, 0);
+    if (failures > 0) {
+      process.exit(EXIT_CODE_FAILURES);
+    } else {
+      process.exit(0);
+    }
+  }
+
+  return results;
 }
 
 function clearScreen() {

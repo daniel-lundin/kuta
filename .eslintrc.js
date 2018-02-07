@@ -13,5 +13,8 @@ module.exports = {
   rules: {
     "linebreak-style": ["error", "unix"],
     semi: ["error", "always"]
+  },
+  parserOptions: {
+    ecmaVersion: 2017
   }
 };
