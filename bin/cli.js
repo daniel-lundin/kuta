@@ -45,6 +45,15 @@ function readFromConfig() {
   });
 }
 
+function printStats(results) {
+  logger.log(colors.bold("Time spent per file:"));
+  Object.keys(results)
+    .map(key => results[key])
+    .sort((a, b) => b.time - a.time)
+    .forEach(result => logger.log(`${result.description} ${result.time} ms`));
+  logger.log("");
+}
+
 function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log("");
   logger.log("  Usage: kuta [options] testfiles");
@@ -60,6 +69,7 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
     "  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests"
   );
   // logger.log('  -b, --bail \t\t\tExit on first failure');
+  logger.log("  -v, --version \t\t\tPrint version info");
   logger.log("  -h, --help \t\t\tPrint this help");
   logger.log("");
   process.exit(exitCode);
@@ -71,11 +81,6 @@ function printVersion() {
   logger.log("");
   logger.log("© 2018 Daniel Lundin");
   process.exit(0);
-}
-
-function printInteractivePrompt() {
-  logger.log("");
-  logger.log("Waiting for file changes...");
 }
 
 function promiseGlob(globPattern) {
@@ -114,6 +119,7 @@ async function startTests(watchMode) {
   const reporter = args.reporter;
   const bailMode = args.b || args.bail;
   const files = args._;
+  const verbose = args.verbose;
 
   const { testFiles, onlyMatches } = await getTestFiles(
     files.length ? files : config.files
@@ -122,31 +128,26 @@ async function startTests(watchMode) {
     Object.keys(onlyMatches).includes(file)
   );
 
-  const runnerArgs = {
+  const runnerOptions = {
     requires: requires.length ? requires : config.requires,
-    match: onlyMatches,
-    processes: processes || config.processes,
+    matches: onlyMatches,
+    processCount: processes || config.processes,
     timeout: timeout ? timeout : config.timeout,
     reporter: reporter || config.reporter,
     bailMode,
-    files: Object.keys(onlyMatches).length ? filteredFiles : testFiles
+    verbose
   };
 
   logger.log(
     `Running ${testFiles.length} test file(s) in ${
-      runnerArgs.processes
+      runnerOptions.processCount
     } processes...\n`
   );
 
   const results = await runner.run(
-    runnerArgs.files,
-    runnerArgs.match,
-    runnerArgs.requires,
-    runnerArgs.processes,
-    runnerArgs.reporter,
-    runnerArgs.timeout,
-    bailMode,
-    logger
+    Object.keys(onlyMatches).length ? filteredFiles : testFiles,
+    logger,
+    runnerOptions
   );
 
   if (!watchMode) {
@@ -154,6 +155,9 @@ async function startTests(watchMode) {
     const failures = results
       .map(utils.summarizeResults)
       .reduce((errors, curr) => errors + curr.errors, 0);
+    if (verbose) {
+      printStats(results);
+    }
     if (failures > 0) {
       process.exit(EXIT_CODE_FAILURES);
     } else {
@@ -178,10 +182,12 @@ function runTests(watchMode) {
       testInProgress = false;
 
       if (watchMode) {
-        printInteractivePrompt();
         if (testsQueued) {
           runTests(watchMode);
           testsQueued = false;
+        } else {
+          logger.log("");
+          logger.log("Waiting for file changes...");
         }
       }
     })
