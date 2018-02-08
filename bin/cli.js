@@ -46,11 +46,35 @@ function readFromConfig() {
 }
 
 function printStats(results) {
-  logger.log(colors.bold("Time spent per file:"));
-  Object.keys(results)
+  const entries = Object.keys(results)
     .map(key => results[key])
-    .sort((a, b) => b.time - a.time)
-    .forEach(result => logger.log(`${result.description} ${result.time} ms`));
+    // .sort((a, b) => b.time - a.time)
+    .map(result => [
+      result.description,
+      `${result.time}ms`,
+      `${result.processIndex}`
+    ]);
+
+  const maxWidths = entries.reduce(
+    (acc, curr) => {
+      return [
+        Math.max(acc[0], curr[0].length + 1),
+        Math.max(acc[1], curr[1].length + 1),
+        Math.max(acc[2], curr[2].length + 1)
+      ];
+    },
+    [0, 0, 0]
+  );
+
+  logger.logNoNL(colors.bold("File".padEnd(maxWidths[0])));
+  logger.logNoNL(colors.bold("Time".padEnd(maxWidths[1])));
+  logger.log(colors.bold("Process"));
+
+  entries.forEach(result => {
+    logger.logNoNL(result[0].padEnd(maxWidths[0]));
+    logger.logNoNL(result[1].padEnd(maxWidths[1]));
+    logger.log(result[2].padEnd(maxWidths[2]));
+  });
   logger.log("");
 }
 
