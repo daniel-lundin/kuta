@@ -157,7 +157,7 @@ async function startTests(watchMode) {
     matches: onlyMatches,
     processCount: processes || config.processes,
     timeout: timeout ? timeout : config.timeout,
-    reporter: reporter || config.reporter,
+    reporterName: reporter || config.reporter,
     bailMode,
     verbose
   };
