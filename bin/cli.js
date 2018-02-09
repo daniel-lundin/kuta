@@ -223,11 +223,15 @@ function runTests(watchMode) {
 }
 
 function startWatch(dirs) {
-  function debounce(fn, delay) {
-    let timer = null;
+  function throttle(fn, delay) {
+    let lastCall = null;
+
     return function() {
-      clearTimeout(timer);
-      timer = setTimeout(fn, delay);
+      const now = Date.now();
+      if (!lastCall || lastCall + delay > now) {
+        fn();
+      }
+      lastCall = now;
     };
   }
 
@@ -241,16 +245,13 @@ function startWatch(dirs) {
     }
   }
 
-  const triggerNewRun = debounce(_triggerNewRun, 250);
+  const triggerNewRun = throttle(_triggerNewRun, 250);
 
   dirs.forEach(dir => {
     const watchOpts = {
       recursive: true
     };
-    fs.watch(dir, watchOpts, (type, file) => {
-      processPool.broadcast(common.clearRequireCache(path.join(dir, file)));
-      triggerNewRun();
-    });
+    fs.watch(dir, watchOpts, triggerNewRun);
   });
 }
 

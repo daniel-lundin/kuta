@@ -6,6 +6,7 @@ module.exports = {
   },
   globals: {
     process: true,
+    __filename: true,
     __dirname: true,
     setImmediate: true
   },
