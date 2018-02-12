@@ -228,7 +228,7 @@ function startWatch(dirs) {
 
     return function() {
       const now = Date.now();
-      if (!lastCall || lastCall + delay > now) {
+      if (!lastCall || now - lastCall > delay) {
         fn();
       }
       lastCall = now;
