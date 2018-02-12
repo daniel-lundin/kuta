@@ -3,6 +3,7 @@ const { kutaAsEmitter } = require("../helpers/spawn");
 const { assert } = require("chai");
 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time));
+
 feature("errors", scenario => {
   scenario("warn on uncaught errors", s => {
     let kutaEmitter;

@@ -162,17 +162,16 @@ async function startTests(watchMode) {
     verbose
   };
 
+  const filesToRun = Object.keys(onlyMatches).length
+    ? filteredFiles
+    : testFiles;
   logger.log(
-    `Running ${testFiles.length} test file(s) in ${
+    `Running ${filesToRun.length} test file(s) in ${
       runnerOptions.processCount
     } processes...\n`
   );
 
-  const results = await runner.run(
-    Object.keys(onlyMatches).length ? filteredFiles : testFiles,
-    logger,
-    runnerOptions
-  );
+  const results = await runner.run(filesToRun, logger, runnerOptions);
 
   if (!watchMode) {
     processPool.stopProcessPool();
