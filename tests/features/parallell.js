@@ -1,6 +1,6 @@
 const assert = require("assert");
 
-const { test } = require("../../lib/kuta.js");
+const { test } = require("../../src/kuta.js");
 const { spawn } = require("../helpers/spawn");
 const { parseResult } = require("../helpers/output-parser.js");
 

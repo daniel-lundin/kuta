@@ -1,4 +1,4 @@
-const { feature } = require("../../lib/bdd");
+const { feature } = require("../../src/bdd");
 const { kutaAsEmitter } = require("../helpers/spawn");
 const { assert } = require("chai");
 

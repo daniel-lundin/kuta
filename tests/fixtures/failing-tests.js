@@ -1,21 +1,21 @@
-const test = require('../../lib/kuta.js').test;
-const assert = require('assert');
+const test = require("../../src/kuta.js").test;
+const assert = require("assert");
 
-test('a simple failing test', () => {
-  assert(false, 'we failed');
+test("a simple failing test", () => {
+  assert(false, "we failed");
 });
 
-test('failing by rejecting', () => {
+test("failing by rejecting", () => {
   return Promise.reject();
 });
 
-test('out of bounds rejections', (done) => {
+test("out of bounds rejections", done => {
   setTimeout(() => {
     assert(false);
     done();
   });
 });
 
-test('done with error', (done) => {
-  setTimeout(() => done(new Error('')), 100);
+test("done with error", done => {
+  setTimeout(() => done(new Error("")), 100);
 });

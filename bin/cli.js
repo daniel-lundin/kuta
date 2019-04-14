@@ -7,11 +7,11 @@ const glob = require("glob");
 const fs = require("fs");
 const os = require("os");
 
-const runner = require(path.join(__dirname, "../lib/runner"));
-const logger = require(path.join(__dirname, "../lib/logger"));
-const utils = require(path.join(__dirname, "../lib/utils"));
-const common = require(path.join(__dirname, "../lib/common"));
-const processPool = require(path.join(__dirname, "../lib/process-pool"));
+const runner = require(path.join(__dirname, "../src/runner"));
+const logger = require(path.join(__dirname, "../src/logger"));
+const utils = require(path.join(__dirname, "../src/utils"));
+const common = require(path.join(__dirname, "../src/common"));
+const processPool = require(path.join(__dirname, "../src/process-pool"));
 
 const EXIT_CODE_OK = 0;
 const EXIT_CODE_USAGE = 1;
@@ -93,7 +93,10 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
     "  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests"
   );
   // logger.log('  -b, --bail \t\t\tExit on first failure');
-  logger.log("  -v, --version \t\t\tPrint version info");
+  logger.log(
+    "      --global-setup \t\tPath to global setup module that exports an async function"
+  );
+  logger.log("  -v, --version \t\tPrint version info");
   logger.log("  -h, --help \t\t\tPrint this help");
   logger.log("");
   process.exit(exitCode);
@@ -262,8 +265,22 @@ if (require.main === module) {
   if (args.v || args.version) {
     printVersion();
   }
-  readFromConfig().then(config => {
+  readFromConfig().then(async config => {
     const watch = args.w || args.watch || config.watch || "";
+    const globalSetup = args["global-setup"];
+    if (globalSetup) {
+      try {
+        const setupModule = require(globalSetup);
+        await setupModule();
+      } catch (error) {
+        return logger.log(
+          `${colors.bold(
+            colors.red("Error:")
+          )} Failed to run global setup. ${error}\n`
+        );
+      }
+    }
+
     if (typeof watch !== "string") {
       return logger.log(
         `${colors.bold(

@@ -8,7 +8,7 @@ const {
   Given,
   When,
   Then
-} = require('../../lib/mocha-compat.js');
+} = require('../../src/mocha-compat.js');
 const assert = require('assert');
 const sinon = require('sinon');
 

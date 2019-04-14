@@ -1,4 +1,4 @@
-const test = require('../../lib/kuta.js').test;
+const test = require('../../src/kuta.js').test;
 
 test('test 1', () => {});
 test('test 2', () => {});

@@ -1,4 +1,4 @@
-const { test } = require("../../lib/kuta");
+const { test } = require("../../src/kuta");
 
 test("throws delayed exception", () => {
   console.log("running test");

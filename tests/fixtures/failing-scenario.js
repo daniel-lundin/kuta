@@ -1,4 +1,4 @@
-const feature = require("../../lib/bdd.js").feature;
+const feature = require("../../src/bdd.js").feature;
 const {
   describe,
   it,
@@ -9,7 +9,7 @@ const {
   Given,
   When,
   Then
-} = require("../../lib/mocha-compat.js");
+} = require("../../src/mocha-compat.js");
 const assert = require("assert");
 const sinon = require("sinon");
 

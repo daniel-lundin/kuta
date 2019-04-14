@@ -1,4 +1,4 @@
-const test = require("../../lib/kuta").test;
+const test = require("../../src/kuta").test;
 const assert = require("assert");
 
 const { spawn } = require("../helpers/spawn");

@@ -1,13 +1,12 @@
-const test = require('../../lib/kuta.js').test;
-const assert = require('assert');
+const test = require("../../src/kuta.js").test;
+const assert = require("assert");
 
-test('simple', () => {
-});
+test("simple", () => {});
 
-test('returning resolved promise', () => {
+test("returning resolved promise", () => {
   return Promise.resolve();
 });
 
-test('calling done', (done) => {
+test("calling done", done => {
   setTimeout(done, 100);
 });

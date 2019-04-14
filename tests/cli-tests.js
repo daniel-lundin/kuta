@@ -1,6 +1,6 @@
 const spawn = require("child_process").spawn;
 
-const test = require("../lib/kuta").test;
+const test = require("../src/kuta").test;
 const assert = require("assert");
 
 function promisedExec(command, args, onData = () => {}) {

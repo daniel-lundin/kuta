@@ -1,6 +1,6 @@
 const assert = require("assert");
 
-const feature = require("../../lib/bdd").feature;
+const feature = require("../../src/bdd").feature;
 const { spawn, kutaAsEmitter } = require("../helpers/spawn");
 
 feature("file watch", scenario => {

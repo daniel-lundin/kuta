@@ -2,7 +2,7 @@
   "name": "kuta",
   "version": "1.7.4",
   "description": "blazing fast test runner",
-  "main": "./lib/kuta.js",
+  "main": "./src/kuta.js",
   "kuta": {
     "files": [
       "tests/features/*"
@@ -33,16 +33,16 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "eslint": "^3.12.0",
+    "eslint": "^5.16.0",
     "eslint-config-prettier": "^2.9.0",
     "md2ghp": "0.0.6",
-    "nyc": "^10.0.0",
+    "nyc": "^13.3.0",
     "pre-commit": "^1.2.2",
     "sinon": "^1.17.6"
   },
   "scripts": {
     "test": "./bin/cli.js",
-    "lint": "eslint lib tests bin",
+    "lint": "eslint src tests bin",
     "ci": "npm run lint && npm run test -- --processes 1",
     "postpublish": "md2ghp"
   }
