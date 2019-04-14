@@ -270,7 +270,7 @@ if (require.main === module) {
     const globalSetup = args["global-setup"];
     if (globalSetup) {
       try {
-        const setupModule = require(globalSetup);
+        const setupModule = require(path.join(process.cwd(), globalSetup));
         await setupModule();
       } catch (error) {
         return logger.log(
