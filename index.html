@@ -22,7 +22,7 @@
 <a href="https://badge.fury.io/js/kuta"><img src="https://badge.fury.io/js/kuta.svg" alt=npm version" title="null" style="max-width: 100%;"></a></p>
 <p>Experimental parallel test runner for node</p>
 <p><code>npm install kuta</code></p>
-<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#licence>Licence</a></li></ul><h2 id="introduction">Introduction</h2><p>Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.</p>
+<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#licence>Licence</a></li></ul><h2 id="introduction">Introduction</h2><p>This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.</p>
 <h2 id="design-goals">Design goals</h2><ul>
 <li>Fast execution times by running tests in parallel</li>
 <li>Agnostic towards assertion libraries, as long as exceptions are thrown or promises returned.</li>
@@ -102,7 +102,6 @@ test.group.skip(&#39;nor will this group&#39;, (t) =&gt; {
    -p, --processes          Number of processes in the process pool
    -t, --timeout            Number of milliseconds before tests timeout
        --reporter           progress or spec(default)
-   -w, --watch [dir1,dir2]  Directories to watch for changes and re-run tests
 </code></pre><p>Example:</p>
 <p><code>kuta tests/**/*.js</code></p>
 <h3 id="configuration">Configuration</h3><p>Kuta looks for a <code>kuta</code>-section in package.json where options can be defined. CLI arguments take precendence over package.json config.</p>
@@ -113,7 +112,6 @@ test.group.skip(&#39;nor will this group&#39;, (t) =&gt; {
     &quot;requires&quot;: [&quot;testSetup.js&quot;, &quot;babel-register&quot;],
     &quot;files&quot;: [&quot;tests/*.js&quot;],
     &quot;processes&quot;: 8,
-    &quot;watch&quot;: &quot;lib/,common&quot;,
     &quot;timeout&quot;: 1000
   },
 }
