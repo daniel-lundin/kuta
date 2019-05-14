@@ -12,8 +12,6 @@ feature("errors", scenario => {
 
     s.given("a kuta process in test mode", () => {
       kutaEmitter = kutaAsEmitter([
-        "-w",
-        "tests/fixtures/delayed-exception.js",
         "tests/fixtures/delayed-exception.js",
         "-p",
         "1"

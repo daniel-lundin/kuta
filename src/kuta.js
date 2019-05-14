@@ -354,17 +354,6 @@ function runTests(testFile, match, timeout, IPC) {
   topLevelTest._reset();
   resetTestControl();
   try {
-    const requires = process.argv.slice(2);
-    Object.keys(require.cache).forEach(key => {
-      if (
-        !requires.includes(key) &&
-        !key.includes("node_modules") &&
-        key !== __filename
-      ) {
-        delete require.cache[key];
-      }
-    });
-
     const fullTestPath = path.join(process.cwd(), testFile);
     delete require.cache[fullTestPath];
     require(fullTestPath);

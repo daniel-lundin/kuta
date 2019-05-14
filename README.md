@@ -11,7 +11,7 @@ Experimental parallel test runner for node
 
 ## Introduction
 
-Tests should run fast. This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.
+This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.
 
 ## Design goals
 
@@ -105,7 +105,6 @@ Tests are run with the `kuta` command:
    -p, --processes          Number of processes in the process pool
    -t, --timeout            Number of milliseconds before tests timeout
        --reporter           progress or spec(default)
-   -w, --watch [dir1,dir2]  Directories to watch for changes and re-run tests
 ```
 
 
@@ -126,7 +125,6 @@ Example package.json:
     "requires": ["testSetup.js", "babel-register"],
     "files": ["tests/*.js"],
     "processes": 8,
-    "watch": "lib/,common",
     "timeout": 1000
   },
 }

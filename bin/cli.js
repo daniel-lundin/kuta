@@ -10,7 +10,6 @@ const os = require("os");
 const runner = require(path.join(__dirname, "../src/runner"));
 const logger = require(path.join(__dirname, "../src/logger"));
 const utils = require(path.join(__dirname, "../src/utils"));
-const common = require(path.join(__dirname, "../src/common"));
 const processPool = require(path.join(__dirname, "../src/process-pool"));
 
 const EXIT_CODE_OK = 0;
@@ -27,7 +26,6 @@ function readFromConfig() {
           processes: 4,
           requires: [],
           files: [],
-          watch: "",
           reporter: "spec"
         });
       }
@@ -38,7 +36,6 @@ function readFromConfig() {
         requires: kutaConfig.requires || [],
         files: kutaConfig.files || [],
         timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
-        watch: kutaConfig.watch || "",
         reporter: kutaConfig.reporter || "spec"
       });
     });
@@ -89,9 +86,6 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log(
     "  -t, --timeout\t\t\tNumber of milliseconds before tests timeout"
   );
-  logger.log(
-    "  -w, --watch [dir1,dir2]\tDirectories to watch for changes and re-run tests"
-  );
   // logger.log('  -b, --bail \t\t\tExit on first failure');
   logger.log(
     "      --global-setup \t\tPath to global setup module that exports an async function"
@@ -133,7 +127,7 @@ async function getTestFiles(files) {
     );
 }
 
-async function startTests(watchMode) {
+async function startTests() {
   const config = await readFromConfig();
   const args = minimist(process.argv.slice(2));
   if (args._.length === 0 && config.files.length < 1) {
@@ -176,19 +170,17 @@ async function startTests(watchMode) {
 
   const results = await runner.run(filesToRun, logger, runnerOptions);
 
-  if (!watchMode) {
-    processPool.stopProcessPool();
-    const failures = results
-      .map(utils.summarizeResults)
-      .reduce((errors, curr) => errors + curr.errors, 0);
-    if (verbose) {
-      printStats(results);
-    }
-    if (failures > 0) {
-      process.exit(EXIT_CODE_FAILURES);
-    } else {
-      process.exit(0);
-    }
+  processPool.stopProcessPool();
+  const failures = results
+    .map(utils.summarizeResults)
+    .reduce((errors, curr) => errors + curr.errors, 0);
+  if (verbose) {
+    printStats(results);
+  }
+  if (failures > 0) {
+    process.exit(EXIT_CODE_FAILURES);
+  } else {
+    process.exit(0);
   }
 
   return results;
@@ -198,63 +190,8 @@ function clearScreen() {
   logger.log("\x1Bc");
 }
 
-let testInProgress = false;
-let testsQueued = false;
-
-function runTests(watchMode) {
-  testInProgress = true;
-  startTests(watchMode)
-    .then(() => {
-      testInProgress = false;
-
-      if (watchMode) {
-        if (testsQueued) {
-          runTests(watchMode);
-          testsQueued = false;
-        } else {
-          logger.log("");
-          logger.log("Waiting for file changes...");
-        }
-      }
-    })
-    .catch(err => {
-      if (err !== common.ABORT_EXIT_CODE) {
-        throw err;
-      }
-    });
-}
-
-function startWatch(dirs) {
-  function throttle(fn, delay) {
-    let lastCall = null;
-
-    return function() {
-      const now = Date.now();
-      if (!lastCall || now - lastCall > delay) {
-        fn();
-      }
-      lastCall = now;
-    };
-  }
-
-  function _triggerNewRun() {
-    if (testInProgress) {
-      testsQueued = true;
-      processPool.broadcast(common.stopTests());
-    } else {
-      clearScreen();
-      runTests(true);
-    }
-  }
-
-  const triggerNewRun = throttle(_triggerNewRun, 250);
-
-  dirs.forEach(dir => {
-    const watchOpts = {
-      recursive: true
-    };
-    fs.watch(dir, watchOpts, triggerNewRun);
-  });
+function runTests() {
+  return startTests();
 }
 
 if (require.main === module) {
@@ -265,8 +202,7 @@ if (require.main === module) {
   if (args.v || args.version) {
     printVersion();
   }
-  readFromConfig().then(async config => {
-    const watch = args.w || args.watch || config.watch || "";
+  readFromConfig().then(async () => {
     const globalSetup = args["global-setup"];
     if (globalSetup) {
       try {
@@ -281,24 +217,12 @@ if (require.main === module) {
       }
     }
 
-    if (typeof watch !== "string") {
-      return logger.log(
-        `${colors.bold(
-          colors.yellow("Warning:")
-        )} watch parameter must be a comma-sperated string\n`
-      );
-    }
-    const watchMode = watch.length > 1;
-    if (watchMode) {
-      startWatch(watch.split(","));
-    }
-    runTests(watchMode);
+    runTests();
   });
 }
 
 module.exports = {
   runTests,
   startTests,
-  startWatch,
   clearScreen
 };
