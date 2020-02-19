@@ -4,7 +4,7 @@ const { test } = require("../../src/kuta.js");
 const { spawn } = require("../helpers/spawn");
 const { parseResult } = require("../helpers/output-parser.js");
 
-test("four 1s suites should run in ~2s with 2 processes", () => {
+test.skip("four 1s suites should run in ~2s with 2 processes", () => {
   const startTime = Date.now();
   return spawn("./bin/cli.js", [
     "-p",
@@ -20,7 +20,7 @@ test("four 1s suites should run in ~2s with 2 processes", () => {
   });
 });
 
-test("four 1s suits should run in ~1s with 4 processes", () => {
+test.skip("four 1s suits should run in ~1s with 4 processes", () => {
   const startTime = Date.now();
 
   return spawn("./bin/cli.js", [

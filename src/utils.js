@@ -20,10 +20,11 @@ function summarizeResults(group) {
       const groupResult = summarizeResults(group);
       return {
         errors: acc.errors + groupResult.errors,
-        successes: acc.successes + groupResult.successes
+        successes: acc.successes + groupResult.successes,
+        errorDetails: [...acc.errorDetails, ...groupResult.errorDetails]
       };
     },
-    { errors: errors.length, successes: successes.length }
+    { errors: errors.length, successes: successes.length, errorDetails: errors  }
   );
 }
 

@@ -83,6 +83,7 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log("");
   logger.log("  -r, --require\t\t\tfiles to require before running tests");
   logger.log("  -p, --processes\t\tNumber of processes in the process pool");
+  logger.log("  -e, --errorSummary\t\tPrint a summary of failing tests after test run");
   logger.log(
     "  -t, --timeout\t\t\tNumber of milliseconds before tests timeout"
   );
@@ -141,6 +142,7 @@ async function startTests() {
   const bailMode = args.b || args.bail;
   const files = args._;
   const verbose = args.verbose;
+  const printErrorSummary = args.e || args.errorSummary;
 
   const { testFiles, onlyMatches } = await getTestFiles(
     files.length ? files : config.files
@@ -156,7 +158,8 @@ async function startTests() {
     timeout: timeout ? timeout : config.timeout,
     reporterName: reporter || config.reporter,
     bailMode,
-    verbose
+    verbose,
+    printErrorSummary
   };
 
   const filesToRun = Object.keys(onlyMatches).length
