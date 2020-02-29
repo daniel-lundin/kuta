@@ -17,7 +17,7 @@ function createStringLogger() {
   };
 }
 
-function printSummarizedResult(logger, testResults, startTime) {
+function printSummarizedResult(logger, testResults, startTime, printErrorSummary) {
   const summarizedReposts = testResults
     .map(result => utils.summarizeResults(result.results))
     .reduce(
@@ -26,10 +26,11 @@ function printSummarizedResult(logger, testResults, startTime) {
           {},
           {
             successes: acc.successes + curr.successes,
-            errors: acc.errors + curr.errors
+            errors: acc.errors + curr.errors,
+            errorDetails: [...acc.errorDetails, ...curr.errorDetails]
           }
         ),
-      { successes: 0, errors: 0 }
+      { successes: 0, errors: 0, errorDetails: [] }
     );
   logger.log("");
   logger.log("");
@@ -39,6 +40,16 @@ function printSummarizedResult(logger, testResults, startTime) {
   logger.log(colors.bold(`Failed: ${colors.red(summarizedReposts.errors)}`));
   logger.log("");
 
+  if(printErrorSummary && summarizedReposts.errorDetails.length > 0) {
+    logger.log("Failing tests:");
+    summarizedReposts.errorDetails.forEach(error => {
+      logger.log(colors.red(`✗ ${error.description}`));
+      logger.log(`${error.details}`);
+      logger.log("");
+    });
+    logger.log("");
+  }
+
   const timeElapsed = Math.round((Date.now() - startTime) / 1000);
   logger.log(colors.bold(`Tests took: ${timeElapsed} s`));
   logger.log("");
@@ -46,7 +57,7 @@ function printSummarizedResult(logger, testResults, startTime) {
   logger.log("");
 }
 
-function createSpecReporter(logger, fileCount, processCount) {
+function createSpecReporter(logger, fileCount, processCount, printErrorDetails) {
   const startTime = Date.now();
   const completedResults = [];
   let filesCompleted = 0;
@@ -84,7 +95,7 @@ function createSpecReporter(logger, fileCount, processCount) {
         lastFile = testFile;
 
         if (filesCompleted === fileCount) {
-          printSummarizedResult(logger, completedResults, startTime);
+          printSummarizedResult(logger, completedResults, startTime, printErrorDetails);
         }
       }
     };

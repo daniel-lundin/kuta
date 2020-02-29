@@ -17,19 +17,21 @@ function executeInProcessPool(
     processCount,
     reporterName,
     timeout,
-    verbose = false
+    verbose = false,
+    printErrorSummary
   } = {}
 ) {
   const processes = startProcessPool(processCount, requires);
 
   const testResults = [];
-  const reporter = reporters.create(
-    reporterName,
+  const reporter = reporters.create({
+    name: reporterName,
     logger,
-    files.length,
+    fileCount: files.length,
     processCount,
-    verbose
-  );
+    verbose,
+    printErrorSummary
+  });
 
   function popFile() {
     return files.shift();

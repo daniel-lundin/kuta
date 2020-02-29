@@ -47,3 +47,17 @@ test.skip("should bail on first failure in --bail mode", () => {
     }
   );
 });
+
+test("should print error summary after failing tests", () => {
+  return spawn("./bin/cli.js", ["tests/fixtures/failing-tests.js", "-e", "-p", "1" , "--reporter=spec"]).then(
+    ({ stdout }) => {
+      const failedCount = parseInt(stdout.match(/Failed.*(\d)/)[1], 10);
+      const passedCount = parseInt(stdout.match(/Passed.*(\d)/)[1], 10);
+      assert.equal(failedCount, 4);
+      assert.equal(passedCount, 0);
+
+      const failedDetailsCount = stdout.match(/Failing tests:.*/).length;
+      assert.equal(failedDetailsCount, 1);
+    }
+  );
+});
