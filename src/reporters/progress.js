@@ -2,7 +2,7 @@
 
 const colors = require("colors");
 
-const utils = require("../utils");
+const { printFailingTests, printSummarizedResult } = require("../output");
 
 function cursorUp(lines) {
   process.stdout.write("\u001b[" + lines + "A");
@@ -16,16 +16,6 @@ function clearComingLines(logger, lines) {
   cursorUp(lines);
 }
 
-function fullDescription(test) {
-  let description = test.description;
-  let parentGroup = test.parentGroup;
-  while (parentGroup) {
-    description = `${parentGroup.description} ${description}`;
-    parentGroup = parentGroup.parentGroup;
-  }
-  return description;
-}
-
 function createProgressReporter(logger, fileCount) {
   const startTime = Date.now();
   const width = Math.min(fileCount, 40);
@@ -33,23 +23,12 @@ function createProgressReporter(logger, fileCount) {
   let filesProcessed = 0;
   const testResults = [];
 
-  function printFailing(testResult) {
-    const failingTests = utils.extractFailingTests(testResult.results);
-    if (failingTests.length > 0) {
-      failingTests.forEach(failingTest => {
-        logger.log(colors.red(colors.bold(fullDescription(failingTest))));
-        logger.log(colors.red(failingTest.details));
-        logger.log("                              ");
-      });
-    }
-  }
-
   return function({ testResult, partial = false }) {
     if (partial) return;
 
     filesProcessed++;
     testResults.push(testResult);
-    printFailing(testResult);
+    printFailingTests(testResult, logger);
 
     clearComingLines(logger, 6);
 
@@ -65,26 +44,7 @@ function createProgressReporter(logger, fileCount) {
     });
     logger.logNoNL("]");
 
-    const summarizedResults = testResults
-      .map(result => utils.summarizeResults(result.results))
-      .reduce(
-        (acc, curr) =>
-          Object.assign(
-            {},
-            {
-              successes: acc.successes + curr.successes,
-              errors: acc.errors + curr.errors
-            }
-          ),
-        { successes: 0, errors: 0 }
-      );
-    logger.log("");
-    logger.log("");
-    logger.log(
-      colors.bold(`Passed: ${colors.green(summarizedResults.successes)}`)
-    );
-    logger.log(colors.bold(`Failed: ${colors.red(summarizedResults.errors)}`));
-    logger.log("");
+    printSummarizedResult(testResults, logger);
 
     if (filesProcessed === fileCount) {
       const timeElapsed = Math.round((Date.now() - startTime) / 1000);

@@ -8,12 +8,8 @@ function arrayParam(longArg, shortArg) {
 }
 
 function summarizeResults(group) {
-  const errors = group.results.filter(
-    test => test.result === common.TEST_FAILURE
-  );
-  const successes = group.results.filter(
-    test => test.result === common.TEST_SUCCESS
-  );
+  const errors = group.results.filter(test => test.result === common.TEST_FAILURE);
+  const successes = group.results.filter(test => test.result === common.TEST_SUCCESS);
 
   return group.groups.reduce(
     (acc, group) => {
@@ -24,19 +20,13 @@ function summarizeResults(group) {
         errorDetails: [...acc.errorDetails, ...groupResult.errorDetails]
       };
     },
-    { errors: errors.length, successes: successes.length, errorDetails: errors  }
+    { errors: errors.length, successes: successes.length, errorDetails: errors }
   );
 }
 
 function extractTests(group, predicate) {
-  const tests = group.results
-    .filter(predicate)
-    .map(test => Object.assign({}, test, { parentGroup: group }));
-  return tests.concat(
-    ...group.groups.map(g =>
-      extractFailingTests(Object.assign({}, g, { parentGroup: group }))
-    )
-  );
+  const tests = group.results.filter(predicate).map(test => Object.assign({}, test, { parentGroup: group }));
+  return tests.concat(...group.groups.map(g => extractFailingTests(Object.assign({}, g, { parentGroup: group }))));
 }
 
 function extractPendingTests(group) {

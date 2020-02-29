@@ -46,11 +46,7 @@ function printStats(results) {
   const entries = Object.keys(results)
     .map(key => results[key])
     // .sort((a, b) => b.time - a.time)
-    .map(result => [
-      result.description,
-      `${result.time}ms`,
-      `${result.processIndex}`
-    ]);
+    .map(result => [result.description, `${result.time}ms`, `${result.processIndex}`]);
 
   const maxWidths = entries.reduce(
     (acc, curr) => {
@@ -84,13 +80,10 @@ function printUsage(exitCode = EXIT_CODE_USAGE) {
   logger.log("  -r, --require\t\t\tfiles to require before running tests");
   logger.log("  -p, --processes\t\tNumber of processes in the process pool");
   logger.log("  -e, --errorSummary\t\tPrint a summary of failing tests after test run");
-  logger.log(
-    "  -t, --timeout\t\t\tNumber of milliseconds before tests timeout"
-  );
+  logger.log("  -t, --timeout\t\t\tNumber of milliseconds before tests timeout");
   // logger.log('  -b, --bail \t\t\tExit on first failure');
-  logger.log(
-    "      --global-setup \t\tPath to global setup module that exports an async function"
-  );
+  logger.log("      --global-setup \t\tPath to global setup module that exports an async function");
+  logger.log("      --reporter \t\tOne of progres, spec, dot or future");
   logger.log("  -v, --version \t\tPrint version info");
   logger.log("  -h, --help \t\t\tPrint this help");
   logger.log("");
@@ -115,17 +108,11 @@ function promiseGlob(globPattern) {
 }
 
 async function getTestFiles(files) {
-  const filePromises = files
-    .map(promiseGlob)
-    .reduce((acc, curr) => acc.concat(curr), []);
+  const filePromises = files.map(promiseGlob).reduce((acc, curr) => acc.concat(curr), []);
 
   return Promise.all(filePromises)
     .then(files => files.reduce((acc, curr) => acc.concat(curr), []))
-    .then(testFiles =>
-      utils
-        .scanForOnlys(testFiles)
-        .then(onlyMatches => ({ testFiles, onlyMatches }))
-    );
+    .then(testFiles => utils.scanForOnlys(testFiles).then(onlyMatches => ({ testFiles, onlyMatches })));
 }
 
 async function startTests() {
@@ -144,12 +131,8 @@ async function startTests() {
   const verbose = args.verbose;
   const printErrorSummary = args.e || args.errorSummary;
 
-  const { testFiles, onlyMatches } = await getTestFiles(
-    files.length ? files : config.files
-  );
-  const filteredFiles = testFiles.filter(file =>
-    Object.keys(onlyMatches).includes(file)
-  );
+  const { testFiles, onlyMatches } = await getTestFiles(files.length ? files : config.files);
+  const filteredFiles = testFiles.filter(file => Object.keys(onlyMatches).includes(file));
 
   const runnerOptions = {
     requires: requires.length ? requires : config.requires,
@@ -162,21 +145,13 @@ async function startTests() {
     printErrorSummary
   };
 
-  const filesToRun = Object.keys(onlyMatches).length
-    ? filteredFiles
-    : testFiles;
-  logger.log(
-    `Running ${filesToRun.length} test file(s) in ${
-      runnerOptions.processCount
-    } processes...\n`
-  );
+  const filesToRun = Object.keys(onlyMatches).length ? filteredFiles : testFiles;
+  logger.log(`Running ${filesToRun.length} test file(s) in ${runnerOptions.processCount} processes...\n`);
 
   const results = await runner.run(filesToRun, logger, runnerOptions);
 
   processPool.stopProcessPool();
-  const failures = results
-    .map(utils.summarizeResults)
-    .reduce((errors, curr) => errors + curr.errors, 0);
+  const failures = results.map(utils.summarizeResults).reduce((errors, curr) => errors + curr.errors, 0);
   if (verbose) {
     printStats(results);
   }
@@ -212,11 +187,7 @@ if (require.main === module) {
         const setupModule = require(path.join(process.cwd(), globalSetup));
         await setupModule();
       } catch (error) {
-        return logger.log(
-          `${colors.bold(
-            colors.red("Error:")
-          )} Failed to run global setup. ${error}\n`
-        );
+        return logger.log(`${colors.bold(colors.red("Error:"))} Failed to run global setup. ${error}\n`);
       }
     }
 
