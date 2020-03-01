@@ -5,7 +5,7 @@ let processes = [];
 let processPoolStarted = false;
 let processPoolStarter = () => {};
 
-function startProcessPool(processCount, requires) {
+function startProcessPool(processCount, args) {
   if (processPoolStarted) {
     return processes;
   }
@@ -21,11 +21,7 @@ function startProcessPool(processCount, requires) {
           KUTA_PROCESS_INDEX: index
         })
       });
-      return childProcess.fork(
-        path.join(__dirname, "./worker.js"),
-        requires,
-        options
-      );
+      return childProcess.fork(path.join(__dirname, "./worker.js"), Object.values(args), options);
     });
     processPoolStarted = true;
     return processes;

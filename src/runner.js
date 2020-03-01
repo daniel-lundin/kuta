@@ -11,17 +11,9 @@ const EXIT_CODE_FATAL = 10;
 function executeInProcessPool(
   files,
   logger,
-  {
-    matches,
-    requires,
-    processCount,
-    reporterName,
-    timeout,
-    verbose = false,
-    printErrorSummary
-  } = {}
+  { matches, processCount, reporterName, processArgs, timeout, verbose = false, printErrorSummary } = {}
 ) {
-  const processes = startProcessPool(processCount, requires);
+  const processes = startProcessPool(processCount, processArgs);
 
   const testResults = [];
   const reporter = reporters.create({

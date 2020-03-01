@@ -18,6 +18,20 @@ const EXIT_CODE_FAILURES = 2;
 
 const DEFAULT_TIMEOUT = 2000;
 
+const kutaArguments = [
+  "v",
+  "version",
+  "p",
+  "-process",
+  "e",
+  "errorSummary",
+  "t",
+  "timeout",
+  "global-setup",
+  "h",
+  "help"
+];
+
 function readFromConfig() {
   return new Promise(resolve => {
     fs.readFile("./package.json", (err, data) => {
@@ -130,6 +144,12 @@ async function startTests() {
   const files = args._;
   const verbose = args.verbose;
   const printErrorSummary = args.e || args.errorSummary;
+  const processArgs = Object.keys(args)
+    .filter(flag => kutaArguments.includes(flag))
+    .reduce((flag, nonKutaArgs) => {
+      nonKutaArgs[flag] = args[flag];
+      return args;
+    }, {});
 
   const { testFiles, onlyMatches } = await getTestFiles(files.length ? files : config.files);
   const filteredFiles = testFiles.filter(file => Object.keys(onlyMatches).includes(file));
@@ -141,6 +161,7 @@ async function startTests() {
     timeout: timeout ? timeout : config.timeout,
     reporterName: reporter || config.reporter,
     bailMode,
+    processArgs,
     verbose,
     printErrorSummary
   };
@@ -171,6 +192,11 @@ function clearScreen() {
 function runTests() {
   return startTests();
 }
+
+process.on("SIGINT", () => {
+  logger.log("caught SIGINT, stopping child processes");
+  processPool.stopProcessPool();
+});
 
 if (require.main === module) {
   const args = minimist(process.argv.slice(2));
