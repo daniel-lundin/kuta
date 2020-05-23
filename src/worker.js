@@ -1,3 +1,5 @@
+const path = require("path");
+const minimist = require("minimist");
 const test = require("./kuta");
 const common = require("./common");
 const logger = require("./logger");
@@ -5,10 +7,10 @@ const logger = require("./logger");
 const IPC = {
   send(message) {
     process.send(message);
-  }
+  },
 };
 
-process.on("message", message => {
+process.on("message", (message) => {
   switch (message.type) {
     case common.START_TEST_SUITE:
       test.runTests(message.testFile, message.match, message.timeout, IPC);
@@ -24,3 +26,16 @@ process.on("message", message => {
       process.send(common.log("Unknown command"));
   }
 });
+
+const args = minimist(process.argv);
+
+[]
+  .concat(args.r)
+  .filter(Boolean)
+  .forEach((file) => {
+    try {
+      require(file);
+    } catch (e) {
+      require(path.join(process.cwd(), file));
+    }
+  });

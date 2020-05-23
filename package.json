@@ -38,6 +38,7 @@
     "md2ghp": "0.0.6",
     "nyc": "^13.3.0",
     "pre-commit": "^1.2.2",
+    "prettier": "^2.0.5",
     "sinon": "^1.17.6"
   },
   "scripts": {

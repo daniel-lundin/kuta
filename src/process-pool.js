@@ -5,23 +5,25 @@ let processes = [];
 let processPoolStarted = false;
 let processPoolStarter = () => {};
 
-function startProcessPool(processCount, args) {
+function startProcessPool(processCount) {
   if (processPoolStarted) {
     return processes;
   }
 
   processPoolStarter = () => {
     const opts = {
-      cwd: process.cwd()
+      cwd: process.cwd(),
     };
 
     processes = Array.from({ length: processCount }).map((_, index) => {
       const options = Object.assign({}, opts, {
         env: Object.assign({}, process.env, {
-          KUTA_PROCESS_INDEX: index
-        })
+          KUTA_PROCESS_INDEX: index,
+        }),
       });
-      return childProcess.fork(path.join(__dirname, "./worker.js"), Object.values(args), options);
+      const argumentList = process.argv.slice(2);
+
+      return childProcess.fork(path.join(__dirname, "./worker.js"), argumentList, options);
     });
     processPoolStarted = true;
     return processes;
@@ -31,11 +33,11 @@ function startProcessPool(processCount, args) {
 }
 
 function broadcast(message) {
-  processes.forEach(process => process.send(message));
+  processes.forEach((process) => process.send(message));
 }
 
 function stopProcessPool() {
-  processes.forEach(process => {
+  processes.forEach((process) => {
     process.kill();
   });
   processPoolStarted = false;
@@ -44,5 +46,5 @@ function stopProcessPool() {
 module.exports = {
   startProcessPool,
   stopProcessPool,
-  broadcast
+  broadcast,
 };

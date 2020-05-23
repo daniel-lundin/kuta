@@ -18,39 +18,23 @@ const EXIT_CODE_FAILURES = 2;
 
 const DEFAULT_TIMEOUT = 2000;
 
-const kutaArguments = [
-  "v",
-  "version",
-  "p",
-  "-process",
-  "e",
-  "errorSummary",
-  "t",
-  "timeout",
-  "global-setup",
-  "h",
-  "help"
-];
-
 function readFromConfig() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     fs.readFile("./package.json", (err, data) => {
       if (err) {
         return resolve({
           processes: 4,
-          requires: [],
           files: [],
-          reporter: "spec"
+          reporter: "spec",
         });
       }
       const config = JSON.parse(data);
       const kutaConfig = config.kuta || {};
       return resolve({
         processes: kutaConfig.processes || os.cpus().length,
-        requires: kutaConfig.requires || [],
         files: kutaConfig.files || [],
         timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
-        reporter: kutaConfig.reporter || "spec"
+        reporter: kutaConfig.reporter || "spec",
       });
     });
   });
@@ -58,16 +42,16 @@ function readFromConfig() {
 
 function printStats(results) {
   const entries = Object.keys(results)
-    .map(key => results[key])
+    .map((key) => results[key])
     // .sort((a, b) => b.time - a.time)
-    .map(result => [result.description, `${result.time}ms`, `${result.processIndex}`]);
+    .map((result) => [result.description, `${result.time}ms`, `${result.processIndex}`]);
 
   const maxWidths = entries.reduce(
     (acc, curr) => {
       return [
         Math.max(acc[0], curr[0].length + 1),
         Math.max(acc[1], curr[1].length + 1),
-        Math.max(acc[2], curr[2].length + 1)
+        Math.max(acc[2], curr[2].length + 1),
       ];
     },
     [0, 0, 0]
@@ -77,7 +61,7 @@ function printStats(results) {
   logger.logNoNL(colors.bold("Time".padEnd(maxWidths[1])));
   logger.log(colors.bold("Process"));
 
-  entries.forEach(result => {
+  entries.forEach((result) => {
     logger.logNoNL(result[0].padEnd(maxWidths[0]));
     logger.logNoNL(result[1].padEnd(maxWidths[1]));
     logger.log(result[2].padEnd(maxWidths[2]));
@@ -125,8 +109,8 @@ async function getTestFiles(files) {
   const filePromises = files.map(promiseGlob).reduce((acc, curr) => acc.concat(curr), []);
 
   return Promise.all(filePromises)
-    .then(files => files.reduce((acc, curr) => acc.concat(curr), []))
-    .then(testFiles => utils.scanForOnlys(testFiles).then(onlyMatches => ({ testFiles, onlyMatches })));
+    .then((files) => files.reduce((acc, curr) => acc.concat(curr), []))
+    .then((testFiles) => utils.scanForOnlys(testFiles).then((onlyMatches) => ({ testFiles, onlyMatches })));
 }
 
 async function startTests() {
@@ -136,7 +120,6 @@ async function startTests() {
     printUsage();
   }
 
-  const requires = utils.arrayParam(args.require, args.r);
   const processes = parseInt(args.processes || args.p, 10);
   const timeout = args.timeout || args.t;
   const reporter = args.reporter;
@@ -144,26 +127,18 @@ async function startTests() {
   const files = args._;
   const verbose = args.verbose;
   const printErrorSummary = args.e || args.errorSummary;
-  const processArgs = Object.keys(args)
-    .filter(flag => kutaArguments.includes(flag))
-    .reduce((flag, nonKutaArgs) => {
-      nonKutaArgs[flag] = args[flag];
-      return args;
-    }, {});
 
   const { testFiles, onlyMatches } = await getTestFiles(files.length ? files : config.files);
-  const filteredFiles = testFiles.filter(file => Object.keys(onlyMatches).includes(file));
+  const filteredFiles = testFiles.filter((file) => Object.keys(onlyMatches).includes(file));
 
   const runnerOptions = {
-    requires: requires.length ? requires : config.requires,
     matches: onlyMatches,
     processCount: processes || config.processes,
     timeout: timeout ? timeout : config.timeout,
     reporterName: reporter || config.reporter,
     bailMode,
-    processArgs,
     verbose,
-    printErrorSummary
+    printErrorSummary,
   };
 
   const filesToRun = Object.keys(onlyMatches).length ? filteredFiles : testFiles;
@@ -224,5 +199,5 @@ if (require.main === module) {
 module.exports = {
   runTests,
   startTests,
-  clearScreen
+  clearScreen,
 };

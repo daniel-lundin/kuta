@@ -11,9 +11,9 @@ const EXIT_CODE_FATAL = 10;
 function executeInProcessPool(
   files,
   logger,
-  { matches, processCount, reporterName, processArgs, timeout, verbose = false, printErrorSummary } = {}
+  { matches, processCount, reporterName, timeout, verbose = false, printErrorSummary } = {}
 ) {
-  const processes = startProcessPool(processCount, processArgs);
+  const processes = startProcessPool(processCount);
 
   const testResults = [];
   const reporter = reporters.create({
@@ -22,7 +22,7 @@ function executeInProcessPool(
     fileCount: files.length,
     processCount,
     verbose,
-    printErrorSummary
+    printErrorSummary,
   });
 
   function popFile() {
@@ -58,7 +58,7 @@ function executeInProcessPool(
     process.exit(EXIT_CODE_FATAL);
   }
 
-  const processPromises = processes.map(process => {
+  const processPromises = processes.map((process) => {
     if (!startSuiteInProcess(process)) {
       process.removeAllListeners("message");
       process.removeAllListeners("exit");
@@ -67,7 +67,7 @@ function executeInProcessPool(
     }
 
     return new Promise((resolve, reject) => {
-      process.on("message", message => {
+      process.on("message", (message) => {
         switch (message.type) {
           case common.logger:
             return logger.log(message.message);
@@ -82,7 +82,7 @@ function executeInProcessPool(
         }
       });
 
-      process.on("exit", code => {
+      process.on("exit", (code) => {
         if (code === common.ABORT_EXIT_CODE) {
           reject(`foooo ${common.ABORT_EXIT_CODE}`);
         }
@@ -95,12 +95,12 @@ function executeInProcessPool(
 
 function run(files, logger, options) {
   logger.hideCursor();
-  return executeInProcessPool(files, logger, options).then(results => {
+  return executeInProcessPool(files, logger, options).then((results) => {
     logger.showCursor();
     return results;
   });
 }
 
 module.exports = {
-  run
+  run,
 };
