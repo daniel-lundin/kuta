@@ -26,3 +26,12 @@ test("should handle broken tests", () => {
     }
   );
 });
+
+test('should print test times', () => {
+    return spawn("./bin/cli.js", ["tests/fixtures/passing-tests.js"]).then(
+      ({ stdout }) => {
+        const count = parseInt(stdout.match(/\((\d+) ms\)/g).length, 10);
+        assert.strictEqual(count, 7);
+      }
+    );
+});
