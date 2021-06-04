@@ -11,7 +11,7 @@ const XMARK = "✗";
 const spaces = length => Array.from({ length: length * 2 }).join(" ");
 
 function header(logger, group, level) {
-  const time = ""; //group.time ? `(${group.time} ms)` : '';
+  const time = group.time ? `(${group.time} ms)` : '';
   const label = `${spaces(level)} ${colors.bold(group.description)} ${time}`;
   decorateTopLevel(logger, label, level);
 }
@@ -34,13 +34,14 @@ function printResults(logger, group, level = 0) {
   header(logger, group, level);
 
   group.results.forEach(result => {
+    const time = result.time || result.time === 0 ? `(${result.time} ms)` : '';
     if (result.result === common.TEST_SUCCESS) {
       logger.log(
-        `${spaces(level + 1)} ${colors.green(CHECKMARK)} ${result.description}`
+        `${spaces(level + 1)} ${colors.green(CHECKMARK)} ${result.description} ${time}`
       );
     } else if (result.result === common.TEST_FAILURE) {
       logger.log(
-        `${spaces(level + 1)} ${colors.red(XMARK)} ${result.description}`
+        `${spaces(level + 1)} ${colors.red(XMARK)} ${result.description} ${time}`
       );
       logger.log(colors.red(result.details));
     }
