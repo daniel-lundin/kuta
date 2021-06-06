@@ -80,7 +80,7 @@ function createSpecReporter(logger, fileCount, processCount, printErrorDetails) 
       if (summarizedResults.errors !== 0 || summarizedResults.sucessess !== 0) {
         const stringLogger = createStringLogger();
 
-        specHelpers.printResults(stringLogger, results);
+        specHelpers.printResults(stringLogger, results, 0, false);
         const currentOutput = stringLogger.getLog();
 
         if (!currentOutput) return;

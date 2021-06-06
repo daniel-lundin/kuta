@@ -221,8 +221,12 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
   test._runGroups = (testFile, match, timeout, IPC, eachHooks) => {
     return groups.reduce((promise, group) => {
       return promise.then(() => {
+        group.startTime = new Date();
         const childMatch = matches(match, group._groupDescription) ? [] : match;
         return group._runTests(testFile, childMatch, timeout, IPC, eachHooks);
+      }).then(result => {
+        group.time = new Date() - group.startTime;
+        return result;
       });
     }, Promise.resolve());
   };
@@ -303,14 +307,14 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
         test._markAllFailed(err);
         sendPartialResult(IPC, testFile);
       })
-      .then(() => test._results(testFile, startTime));
+      .then(() => test._results(testFile, new Date() - startTime));
   };
 
-  test._results = (testFile, startTime) => ({
+  test._results = (testFile, time) => ({
     description: groupDescription || testFile,
-    time: startTime ? new Date() - startTime : null,
+    time,
     results: tests,
-    groups: groups.map(group => group._results()),
+    groups: groups.map(group => group._results(testFile, group.time)),
     processIndex: process.env.KUTA_PROCESS_INDEX
   });
 
