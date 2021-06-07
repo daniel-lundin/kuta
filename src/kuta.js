@@ -7,6 +7,7 @@ const colors = require("colors");
 // Make sure we don't get stubbed
 const _setTimeout = setTimeout;
 const _setImmediate = setImmediate;
+const _Date = Date;
 
 let globalExceptionHandlers = [];
 function onGlobalException(callback) {
@@ -43,7 +44,7 @@ function testResult(description, result, startTime, details = null) {
   return {
     description,
     result,
-    time: new Date() - startTime,
+    time: new _Date() - startTime,
     details: details ? details.stack : null
   };
 }
@@ -221,18 +222,18 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
   test._runGroups = (testFile, match, timeout, IPC, eachHooks) => {
     return groups.reduce((promise, group) => {
       return promise.then(() => {
-        group.startTime = new Date();
+        group.startTime = new _Date();
         const childMatch = matches(match, group._groupDescription) ? [] : match;
         return group._runTests(testFile, childMatch, timeout, IPC, eachHooks);
       }).then(result => {
-        group.time = new Date() - group.startTime;
+        group.time = new _Date() - group.startTime;
         return result;
       });
     }, Promise.resolve());
   };
 
   test._runTest = (description, implementation, timeout) => {
-    const startTime = new Date();
+    const startTime = new _Date();
     return promisedSetImmediate()
       .then(() => asPromiseWithTimeout(implementation, timeout))
       .then(() => testResult(description, common.TEST_SUCCESS, startTime))
@@ -248,7 +249,7 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
     IPC,
     outerHooks = createHookContext()
   ) => {
-    const startTime = new Date();
+    const startTime = new _Date();
     const hooks = outerHooks.extend(befores, afters, beforeEaches, afterEaches);
     let hasFailing = false;
 
@@ -258,7 +259,7 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
           const newResult = testResult(
             currentTest.description,
             common.TEST_SKIPPED,
-            new Date()
+            new _Date()
           );
           updateTestWithResult(testIndex, newResult);
           sendPartialResult(IPC, testFile);
@@ -272,7 +273,7 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
               return testResult(
                 currentTest.description,
                 common.TEST_SKIPPED,
-                new Date()
+                new _Date()
               );
             }
 
@@ -280,7 +281,7 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
               return testResult(
                 currentTest.description,
                 common.TEST_SKIPPED,
-                new Date()
+                new _Date()
               );
             }
             return test._runTest(
@@ -307,7 +308,7 @@ function createTestGroup(groupDescription = null, groupOptions = {}) {
         test._markAllFailed(err);
         sendPartialResult(IPC, testFile);
       })
-      .then(() => test._results(testFile, new Date() - startTime));
+      .then(() => test._results(testFile, new _Date() - startTime));
   };
 
   test._results = (testFile, time) => ({
