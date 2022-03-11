@@ -15,6 +15,7 @@ const processPool = require(path.join(__dirname, "../src/process-pool"));
 const EXIT_CODE_OK = 0;
 const EXIT_CODE_USAGE = 1;
 const EXIT_CODE_FAILURES = 2;
+const EXIT_CODE_STOPPED = 3;
 
 const DEFAULT_TIMEOUT = 2000;
 
@@ -169,8 +170,10 @@ function runTests() {
 }
 
 process.on("SIGINT", () => {
-  logger.log("caught SIGINT, stopping child processes");
+  logger.log("caught SIGINT, stopping child processes...");
   processPool.stopProcessPool();
+  logger.log("child processes stopped, exit kuta");
+  process.exit(EXIT_CODE_STOPPED);
 });
 
 if (require.main === module) {
