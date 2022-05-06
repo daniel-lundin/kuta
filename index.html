@@ -22,7 +22,7 @@
 <a href="https://badge.fury.io/js/kuta"><img src="https://badge.fury.io/js/kuta.svg" alt=npm version" title="null" style="max-width: 100%;"></a></p>
 <p>Experimental parallel test runner for node</p>
 <p><code>npm install kuta</code></p>
-<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#licence>Licence</a></li></ul><h2 id="introduction">Introduction</h2><p>This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.</p>
+<ul><li><a href=#introduction>Introduction</a></li><li><a href=#design-goals>Design goals</a></li><li><a href=#trade-offs>Trade-offs</a></li><li><a href=#usage>Usage</a></li><li><a href=#writing-tests>Writing tests</a></li><li><a href=#running-tests>Running tests</a></li><li><a href=#configuration>Configuration</a></li><li><a href=#environment-variables>Environment variables</a></li><li><a href=#babel>Babel</a></li><li><a href=#parallel-processes>Parallel processes</a></li><li><a href=#mocha-compatibility>Mocha compatibility</a></li><li><a href=#mocha-cakes>Mocha cakes</a></li><li><a href=#licence>Licence</a></li></ul><h2 id="introduction">Introduction</h2><p>This is an attempt at a parallel test runner for node. Parallellism is achieved by starting a number of processes and feeding them test-files. As soon as one process is done running a test file it will be given a new one.</p>
 <h2 id="design-goals">Design goals</h2><ul>
 <li>Fast execution times by running tests in parallel</li>
 <li>Agnostic towards assertion libraries, as long as exceptions are thrown or promises returned.</li>
@@ -32,7 +32,7 @@
 <li>No TAP support(files are run one by one, so total number of tests are unknown)</li>
 <li>Processes are reused which means that test clean up has to be done for each test. If one test &quot;leaks&quot; into another it can be hard to debug since it is not deterministic which process will run which test.</li>
 </ul>
-<h2 id="usage">Usage</h2><h3 id="writing-tests">Writing tests</h3><pre><code class="lang-js">import { test } from &#39;kuta&#39;;
+<h2 id="usage">Usage</h2><h3 id="writing-tests">Writing tests</h3><pre><code class="lang-js">import { test } from &quot;kuta&quot;;
 
 test.before(() =&gt; {
   // Some setup
@@ -51,20 +51,19 @@ test.afterEach(() =&gt; {
 });
 
 // Synchronous test
-test(&#39;it should work&#39;, () =&gt; {
+test(&quot;it should work&quot;, () =&gt; {
   assert(true);
 });
 
 // Asynchronous test (return a promise)
-test(&#39;it should work&#39;, () =&gt; {
-  return fetch(&#39;http://url.se&#39;)
-    .then((response) =&gt; {
-      assert(response.ok);
-    });
+test(&quot;it should work&quot;, () =&gt; {
+  return fetch(&quot;http://url.se&quot;).then((response) =&gt; {
+    assert(response.ok);
+  });
 });
 
 //  Grouped tests
-test.group(&#39;a group&#39;, (t) =&gt; {
+test.group(&quot;a group&quot;, (t) =&gt; {
   t.before(() =&gt; {
     // Will run before tests in group
   });
@@ -73,25 +72,19 @@ test.group(&#39;a group&#39;, (t) =&gt; {
     // Will run after tests in group
   });
 
-  t(&#39;a test in this group&#39;, () =&gt; {});
+  t(&quot;a test in this group&quot;, () =&gt; {});
 });
-
 
 // Only running some tests
-test.only(&#39;will only run this test&#39;, () =&gt; {
-});
+test.only(&quot;will only run this test&quot;, () =&gt; {});
 
-test.only(&#39;and this since it also has only&#39;, () =&gt; {
-});
-
+test.only(&quot;and this since it also has only&quot;, () =&gt; {});
 
 // Skipped tests
-test.skip(&#39;this will not run&#39;, () =&gt; {
-});
+test.skip(&quot;this will not run&quot;, () =&gt; {});
 
-test.group.skip(&#39;nor will this group&#39;, (t) =&gt; {
-  t(&#39;or any tests withing it&#39;, () =&gt; {
-  });
+test.group.skip(&quot;nor will this group&quot;, (t) =&gt; {
+  t(&quot;or any tests withing it&quot;, () =&gt; {});
 });
 </code></pre>
 <h3 id="running-tests">Running tests</h3><p>Tests are run with the <code>kuta</code> command:</p>
@@ -113,41 +106,50 @@ test.group.skip(&#39;nor will this group&#39;, (t) =&gt; {
     &quot;files&quot;: [&quot;tests/*.js&quot;],
     &quot;processes&quot;: 8,
     &quot;timeout&quot;: 1000
-  },
+  }
 }
 </code></pre>
+<h4 id="environment-variables">Environment variables</h4><p>You can also use the following environment variables to configure <code>kuta</code></p>
+<ul>
+<li><code>KUTA_PROCESSES</code>: Number of processes in the process pool</li>
+<li><code>KUTA_TIMEOUT</code>: Number of milliseconds before tests timeout</li>
+<li><code>KUTA_REPORTER</code>: Which reporter to run</li>
+</ul>
+<p>If the same option is supplied from multiple sources the priority is</p>
+<ol>
+<li>CLI argument</li>
+<li><code>kuta</code>-section in package.json</li>
+<li>Environment variable</li>
+</ol>
 <h3 id="babel">Babel</h3><p>If you transpile with babel, use the babel-register hook:</p>
 <p><code>kuta tests/**/*.js --require babel-register</code></p>
 <h3 id="parallel-processes">Parallel processes</h3><p>Since processes are run in parallel, test that spawn services on specific port will run into problems where two processes try to allocate the same port. To overcome this, kuta sends an environment variable with an index to each of the processs that can be used to generate unique ports for different processes.</p>
 <p>The environment variable is <code>KUTA_PROCESS_INDEX</code></p>
 <h2 id="mocha-compatibility">Mocha compatibility</h2><p>Kuta includes a mocha and mocha-cakes compatability layer:</p>
-<pre><code class="lang-js">
-import { describe, it } from &#39;kuta/lib/mocha-compat&#39;;
+<pre><code class="lang-js">import { describe, it } from &quot;kuta/lib/mocha-compat&quot;;
 
-describe(&#39;mocha style&#39;, () =&gt; {
+describe(&quot;mocha style&quot;, () =&gt; {
   before(() =&gt; {});
   after(() =&gt; {});
 
-  it(&#39;should work&#39;, () =&gt; {
-    describe(&#39;inner group&#39;, () =&gt; {
-    });
+  it(&quot;should work&quot;, () =&gt; {
+    describe(&quot;inner group&quot;, () =&gt; {});
   });
 });
 </code></pre>
-<h3 id="mocha-cakes">Mocha cakes</h3><pre><code class="lang-js">
-import { Feature, Scenario, Given, When, Then, But } from &#39;kuta/lib/mocha-compat&#39;;
+<h3 id="mocha-cakes">Mocha cakes</h3><pre><code class="lang-js">import { Feature, Scenario, Given, When, Then, But } from &quot;kuta/lib/mocha-compat&quot;;
 
-Feature(&#39;Feature&#39;, () =&gt; {
-  Scenario(&#39;&#39;, () =&gt; {
-    Given(&#39;a given&#39;, () =&gt; {});
+Feature(&quot;Feature&quot;, () =&gt; {
+  Scenario(&quot;&quot;, () =&gt; {
+    Given(&quot;a given&quot;, () =&gt; {});
 
-    When(&#39;something happens&#39;, () =&gt; {});
+    When(&quot;something happens&quot;, () =&gt; {});
 
-    Then(&#39;something is expected&#39;, () =&gt; {});
+    Then(&quot;something is expected&quot;, () =&gt; {});
 
-    And(&#39;another thing should be expected&#39;, () =&gt; {});
+    And(&quot;another thing should be expected&quot;, () =&gt; {});
 
-    But(&#39;not this thing&#39;, () =&gt; {});
+    But(&quot;not this thing&quot;, () =&gt; {});
   });
 });
 </code></pre>
