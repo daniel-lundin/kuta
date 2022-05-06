@@ -21,15 +21,15 @@ This is an attempt at a parallel test runner for node. Parallellism is achieved 
 
 ## Trade-offs
 
- - No TAP support(files are run one by one, so total number of tests are unknown)
- - Processes are reused which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
+- No TAP support(files are run one by one, so total number of tests are unknown)
+- Processes are reused which means that test clean up has to be done for each test. If one test "leaks" into another it can be hard to debug since it is not deterministic which process will run which test.
 
 ## Usage
 
 ### Writing tests
 
 ```js
-import { test } from 'kuta';
+import { test } from "kuta";
 
 test.before(() => {
   // Some setup
@@ -48,20 +48,19 @@ test.afterEach(() => {
 });
 
 // Synchronous test
-test('it should work', () => {
+test("it should work", () => {
   assert(true);
 });
 
 // Asynchronous test (return a promise)
-test('it should work', () => {
-  return fetch('http://url.se')
-    .then((response) => {
-      assert(response.ok);
-    });
+test("it should work", () => {
+  return fetch("http://url.se").then((response) => {
+    assert(response.ok);
+  });
 });
 
 //  Grouped tests
-test.group('a group', (t) => {
+test.group("a group", (t) => {
   t.before(() => {
     // Will run before tests in group
   });
@@ -70,27 +69,20 @@ test.group('a group', (t) => {
     // Will run after tests in group
   });
 
-  t('a test in this group', () => {});
+  t("a test in this group", () => {});
 });
-
 
 // Only running some tests
-test.only('will only run this test', () => {
-});
+test.only("will only run this test", () => {});
 
-test.only('and this since it also has only', () => {
-});
-
+test.only("and this since it also has only", () => {});
 
 // Skipped tests
-test.skip('this will not run', () => {
-});
+test.skip("this will not run", () => {});
 
-test.group.skip('nor will this group', (t) => {
-  t('or any tests withing it', () => {
-  });
+test.group.skip("nor will this group", (t) => {
+  t("or any tests withing it", () => {});
 });
-
 ```
 
 ### Running tests
@@ -106,7 +98,6 @@ Tests are run with the `kuta` command:
    -t, --timeout            Number of milliseconds before tests timeout
        --reporter           progress or spec(default)
 ```
-
 
 Example:
 
@@ -126,9 +117,23 @@ Example package.json:
     "files": ["tests/*.js"],
     "processes": 8,
     "timeout": 1000
-  },
+  }
 }
 ```
+
+#### Environment variables
+
+You can also use the following environment variables to configure `kuta`
+
+- `KUTA_PROCESSES`: Number of processes in the process pool
+- `KUTA_TIMEOUT`: Number of milliseconds before tests timeout
+- `KUTA_REPORTER`: Which reporter to run
+
+If the same option is supplied from multiple sources the priority is
+
+1. CLI argument
+2. `kuta`-section in package.json
+3. Environment variable
 
 ### Babel
 
@@ -147,16 +152,14 @@ The environment variable is `KUTA_PROCESS_INDEX`
 Kuta includes a mocha and mocha-cakes compatability layer:
 
 ```js
+import { describe, it } from "kuta/lib/mocha-compat";
 
-import { describe, it } from 'kuta/lib/mocha-compat';
-
-describe('mocha style', () => {
+describe("mocha style", () => {
   before(() => {});
   after(() => {});
 
-  it('should work', () => {
-    describe('inner group', () => {
-    });
+  it("should work", () => {
+    describe("inner group", () => {});
   });
 });
 ```
@@ -164,20 +167,19 @@ describe('mocha style', () => {
 ### Mocha cakes
 
 ```js
+import { Feature, Scenario, Given, When, Then, But } from "kuta/lib/mocha-compat";
 
-import { Feature, Scenario, Given, When, Then, But } from 'kuta/lib/mocha-compat';
+Feature("Feature", () => {
+  Scenario("", () => {
+    Given("a given", () => {});
 
-Feature('Feature', () => {
-  Scenario('', () => {
-    Given('a given', () => {});
+    When("something happens", () => {});
 
-    When('something happens', () => {});
+    Then("something is expected", () => {});
 
-    Then('something is expected', () => {});
+    And("another thing should be expected", () => {});
 
-    And('another thing should be expected', () => {});
-
-    But('not this thing', () => {});
+    But("not this thing", () => {});
   });
 });
 ```
