@@ -134,9 +134,9 @@ async function startTests() {
 
   const runnerOptions = {
     matches: onlyMatches,
-    processCount: processes || config.processes,
-    timeout: timeout ? timeout : config.timeout,
-    reporterName: reporter || config.reporter,
+    processCount: processes || config.processes || process.env.KUTA_PROCESSES,
+    timeout: timeout || config.timeout || process.env.KUTA_TIMEOUT,
+    reporterName: reporter || config.reporter || process.env.KUTA_REPORTER,
     bailMode,
     verbose,
     printErrorSummary,
