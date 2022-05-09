@@ -18,24 +18,24 @@ const EXIT_CODE_FAILURES = 2;
 const EXIT_CODE_STOPPED = 3;
 
 const DEFAULT_TIMEOUT = 2000;
+const DEFAULT_PROCESSES = os.cpus().length || 4;
+const DEFAULT_REPORTER = "spec";
 
 function readFromConfig() {
   return new Promise((resolve) => {
     fs.readFile("./package.json", (err, data) => {
       if (err) {
         return resolve({
-          processes: 4,
           files: [],
-          reporter: "spec",
         });
       }
       const config = JSON.parse(data);
       const kutaConfig = config.kuta || {};
       return resolve({
-        processes: kutaConfig.processes || os.cpus().length,
         files: kutaConfig.files || [],
-        timeout: kutaConfig.timeout || DEFAULT_TIMEOUT,
-        reporter: kutaConfig.reporter || "spec",
+        processes: kutaConfig.processes,
+        timeout: kutaConfig.timeout,
+        reporter: kutaConfig.reporter,
       });
     });
   });
@@ -134,9 +134,9 @@ async function startTests() {
 
   const runnerOptions = {
     matches: onlyMatches,
-    processCount: processes || config.processes || process.env.KUTA_PROCESSES,
-    timeout: timeout || config.timeout || process.env.KUTA_TIMEOUT,
-    reporterName: reporter || config.reporter || process.env.KUTA_REPORTER,
+    processCount: processes || config.processes || process.env.KUTA_PROCESSES || DEFAULT_PROCESSES,
+    timeout: timeout || config.timeout || process.env.KUTA_TIMEOUT || DEFAULT_TIMEOUT,
+    reporterName: reporter || config.reporter || process.env.KUTA_REPORTER || DEFAULT_REPORTER,
     bailMode,
     verbose,
     printErrorSummary,
