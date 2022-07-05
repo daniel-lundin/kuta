@@ -109,8 +109,17 @@ function createEachHook(befores = [], afters = []) {
     runIn(test) {
       return arrayAsPromise(befores)
         .then(test)
-        .then(result => {
-          return arrayAsPromise(afters).then(() => result);
+        .then((result) => {
+          return arrayAsPromise(afters)
+            .then(() => result)
+            .catch((err) => {
+              if (result.result === common.TEST_SKIPPED) return result;
+
+              return Object.assign({}, result, {
+                result: common.TEST_FAILURE,
+                details: err.stack,
+              });
+            });
         });
     },
     extend(_befores, _afters) {
